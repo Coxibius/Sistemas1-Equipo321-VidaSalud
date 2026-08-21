@@ -1,0 +1,27 @@
+
+============================================================
+  [TREE] Project Structure
+============================================================
+
+Sistemas1-Equipo321-VidaSalud/
+├── docs/
+│   └── architecture-tree.txt
+└── frontend/
+    ├── assets/
+    │   ├── adaptive-icon.png
+    │   ├── favicon.png
+    │   ├── icon.png
+    │   └── splash-icon.png
+    ├── components/
+    ├── constants/
+    ├── hooks/
+    ├── services/
+    ├── types/
+    ├── .gitignore
+    ├── AGENTS.md
+    ├── app.json
+    ├── App.tsx
+    ├── CLAUDE.md
+    ├── index.ts
+    ├── package.json
+    └── tsconfig.json

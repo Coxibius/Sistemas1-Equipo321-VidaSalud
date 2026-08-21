@@ -1,0 +1,118 @@
+{
+  "story": {
+    "id": "HU01",
+    "title": "Registrar producto",
+    "role": "encargado de farmacia",
+    "want": "registrar un producto con su información básica",
+    "benefit": "mantener el inventario organizado",
+    "status": "TODO"
+  },
+  "business_rules": [
+    {
+      "id": "BR01",
+      "description": "Solo usuarios con rol de encargado de inventario o administrador pueden registrar productos."
+    },
+    {
+      "id": "BR02",
+      "description": "Un mismo producto puede tener múltiples lotes."
+    }
+  ],
+  "acceptance_criteria": [
+    {
+      "id": "AC01",
+      "given": "el usuario tiene permisos para registrar productos",
+      "when": "completa todos los datos obligatorios con valores válidos",
+      "then": "el sistema registra correctamente el producto"
+    },
+    {
+      "id": "AC02",
+      "given": "el usuario intenta registrar un producto",
+      "when": "falta un dato obligatorio",
+      "then": "el sistema rechaza el registro e indica qué campo falta"
+    },
+    {
+      "id": "AC03",
+      "given": "el usuario intenta registrar un producto",
+      "when": "la cantidad o el precio son negativos",
+      "then": "el sistema rechaza el registro"
+    },
+    {
+      "id": "AC04",
+      "given": "el producto ya existe",
+      "when": "se registra un nuevo lote válido",
+      "then": "el sistema permite asociar el nuevo lote al producto existente"
+    },
+    {
+      "id": "AC05",
+      "given": "el usuario no tiene permisos de modificación",
+      "when": "intenta registrar un producto",
+      "then": "el sistema rechaza la operación por falta de autorización"
+    }
+  ],
+  "required_data": [
+    {
+      "field": "nombre",
+      "type": "string"
+    },
+    {
+      "field": "categoria",
+      "type": "string"
+    },
+    {
+      "field": "precio",
+      "type": "decimal >= 0"
+    },
+    {
+      "field": "cantidad",
+      "type": "integer >= 0"
+    },
+    {
+      "field": "fecha_vencimiento",
+      "type": "date válida"
+    },
+    {
+      "field": "lote",
+      "type": "string"
+    }
+  ],
+  "validations": [
+    {
+      "field": "nombre",
+      "rule": "obligatorio y no vacío"
+    },
+    {
+      "field": "categoria",
+      "rule": "obligatoria"
+    },
+    {
+      "field": "precio",
+      "rule": "debe ser mayor o igual a cero"
+    },
+    {
+      "field": "cantidad",
+      "rule": "debe ser un entero mayor o igual a cero"
+    },
+    {
+      "field": "fecha_vencimiento",
+      "rule": "debe tener un formato de fecha válido"
+    },
+    {
+      "field": "lote",
+      "rule": "obligatorio"
+    }
+  ],
+  "exceptions": [
+    {
+      "code": "UNAUTHORIZED",
+      "description": "El usuario no tiene permisos para registrar productos."
+    },
+    {
+      "code": "INVALID_DATA",
+      "description": "Uno o más datos proporcionados no cumplen las validaciones."
+    }
+  ],
+  "open_questions": [
+    "¿Un producto con fecha de vencimiento pasada debe rechazarse o registrarse como vencido?",
+    "¿El proveedor será obligatorio en una versión posterior?"
+  ]
+}

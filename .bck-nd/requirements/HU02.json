@@ -1,0 +1,106 @@
+{
+  "story": {
+    "id": "HU02",
+    "title": "Registrar lote y vencimiento",
+    "role": "encargado de farmacia",
+    "want": "registrar el lote, la fecha de vencimiento y la cantidad recibida de un producto",
+    "benefit": "controlar oportunamente los productos próximos a vencer",
+    "status": "TODO"
+  },
+  "business_rules": [
+    {
+      "id": "BR01",
+      "description": "Un lote debe estar asociado a un producto existente."
+    },
+    {
+      "id": "BR02",
+      "description": "Un mismo código de lote no debe duplicarse dentro del mismo producto."
+    }
+  ],
+  "acceptance_criteria": [
+    {
+      "id": "AC01",
+      "given": "existe un producto registrado",
+      "when": "el usuario registra un lote válido",
+      "then": "el lote queda asociado al producto"
+    },
+    {
+      "id": "AC02",
+      "given": "el lote ya existe para el producto",
+      "when": "el usuario intenta registrarlo nuevamente",
+      "then": "el sistema evita el duplicado y notifica al usuario"
+    },
+    {
+      "id": "AC03",
+      "given": "la cantidad recibida es negativa",
+      "when": "el usuario intenta guardar el lote",
+      "then": "el sistema rechaza el registro"
+    },
+    {
+      "id": "AC04",
+      "given": "la fecha de vencimiento no tiene un formato válido",
+      "when": "el usuario intenta guardar el lote",
+      "then": "el sistema rechaza el registro"
+    },
+    {
+      "id": "AC05",
+      "given": "la fecha de vencimiento ya pasó",
+      "when": "el sistema determina su disponibilidad",
+      "then": "el lote no debe considerarse disponible para venta"
+    }
+  ],
+  "required_data": [
+    {
+      "field": "producto_id",
+      "type": "integer"
+    },
+    {
+      "field": "codigo_lote",
+      "type": "string"
+    },
+    {
+      "field": "fecha_vencimiento",
+      "type": "date válida"
+    },
+    {
+      "field": "cantidad",
+      "type": "integer >= 0"
+    }
+  ],
+  "validations": [
+    {
+      "field": "producto_id",
+      "rule": "debe corresponder a un producto existente"
+    },
+    {
+      "field": "codigo_lote",
+      "rule": "obligatorio y único dentro del producto"
+    },
+    {
+      "field": "fecha_vencimiento",
+      "rule": "debe tener un formato de fecha válido"
+    },
+    {
+      "field": "cantidad",
+      "rule": "debe ser un entero mayor o igual a cero"
+    }
+  ],
+  "exceptions": [
+    {
+      "code": "PRODUCT_NOT_FOUND",
+      "description": "El producto asociado al lote no existe."
+    },
+    {
+      "code": "DUPLICATE_LOT",
+      "description": "El lote ya está registrado para el producto."
+    },
+    {
+      "code": "INVALID_DATA",
+      "description": "Uno o más datos del lote no cumplen las validaciones."
+    }
+  ],
+  "open_questions": [
+    "¿Un lote con fecha de vencimiento pasada debe rechazarse al registrarse o almacenarse con estado vencido?",
+    "¿La cantidad de un lote existente puede incrementarse mediante una nueva entrada?"
+  ]
+}

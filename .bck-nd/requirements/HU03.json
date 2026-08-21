@@ -1,0 +1,80 @@
+{
+  "story": {
+    "id": "HU03",
+    "title": "Consultar inventario",
+    "role": "auxiliar de farmacia",
+    "want": "buscar un producto y consultar su stock",
+    "benefit": "responder rápidamente sobre la disponibilidad de un producto",
+    "status": "TODO"
+  },
+  "business_rules": [
+    {
+      "id": "BR01",
+      "description": "La consulta debe mostrar únicamente productos registrados y activos."
+    },
+    {
+      "id": "BR02",
+      "description": "El stock mostrado debe corresponder al inventario registrado."
+    }
+  ],
+  "acceptance_criteria": [
+    {
+      "id": "AC01",
+      "given": "existe un producto registrado",
+      "when": "el usuario busca por nombre",
+      "then": "el sistema muestra el producto y su stock disponible"
+    },
+    {
+      "id": "AC02",
+      "given": "existe un código de producto válido",
+      "when": "el usuario busca por código",
+      "then": "el sistema muestra el producto correspondiente"
+    },
+    {
+      "id": "AC03",
+      "given": "no existen productos que coincidan con el criterio",
+      "when": "el usuario ejecuta la búsqueda",
+      "then": "el sistema informa que no se encontraron resultados"
+    },
+    {
+      "id": "AC04",
+      "given": "un producto tiene stock igual a cero",
+      "when": "el usuario consulta el producto",
+      "then": "el sistema lo muestra como sin stock"
+    }
+  ],
+  "required_data": [
+    {
+      "field": "criterio_busqueda",
+      "type": "string"
+    },
+    {
+      "field": "producto",
+      "type": "object"
+    },
+    {
+      "field": "stock_actual",
+      "type": "integer"
+    },
+    {
+      "field": "lotes",
+      "type": "array"
+    }
+  ],
+  "validations": [
+    {
+      "field": "criterio_busqueda",
+      "rule": "no debe estar vacío"
+    }
+  ],
+  "exceptions": [
+    {
+      "code": "NO_RESULTS",
+      "description": "No existen productos que coincidan con el criterio de búsqueda."
+    }
+  ],
+  "open_questions": [
+    "¿La búsqueda deberá permitir también código de barras?",
+    "¿Los productos con stock cero deben mostrarse siempre o existir un filtro para ocultarlos?"
+  ]
+}

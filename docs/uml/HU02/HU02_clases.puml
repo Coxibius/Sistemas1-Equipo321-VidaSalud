@@ -1,0 +1,24 @@
+@startuml
+title HU02 - Consultar y Buscar Productos - Diagrama de Clases
+class Producto {
+  - nombre : String
+  - categoria : String
+  - precio : Decimal
+  - cantidad : Integer
+  - fechaVencimiento : Date
+}
+class ProductoController {
+  + buscarProductos(nombre : String) : List<Producto>
+  + mostrarProductos(productos : List<Producto>) : void
+  + mostrarSinResultados() : void
+}
+class ProductoService {
+  + buscarProductos(nombre : String) : List<Producto>
+}
+class ProductoRepository {
+  + buscarPorNombre(nombre : String) : List<Producto>
+}
+ProductoController --> ProductoService : utiliza
+ProductoService --> ProductoRepository : utiliza
+ProductoRepository --> Producto : consulta
+@enduml

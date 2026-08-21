@@ -1,0 +1,26 @@
+@startuml
+title HU02 - Consultar y Buscar Productos - Diagrama de Secuencia
+actor "Encargado de Farmacia" as Encargado
+boundary "Interfaz de Productos" as UI
+control "ProductoController" as Controller
+control "ProductoService" as Service
+database "ProductoRepository" as Repository
+database "Base de Datos" as DB
+
+Encargado -> UI : ingresarCriterioBusqueda(nombre)
+UI -> Controller : buscarProductos(nombre)
+Controller -> Service : buscarProductos(nombre)
+Service -> Repository : buscarPorNombre(nombre)
+Repository -> DB : consultarProductos(nombre)
+DB --> Repository : listaProductos
+Repository --> Service : listaProductos
+Service --> Controller : listaProductos
+
+alt Existen coincidencias
+  Controller --> UI : mostrarProductos(listaProductos)
+  UI --> Encargado : Mostrar productos
+else No existen coincidencias
+  Controller --> UI : mostrarSinResultados()
+  UI --> Encargado : Mostrar "No se encontraron productos"
+end
+@enduml

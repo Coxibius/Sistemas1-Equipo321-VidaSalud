@@ -1,0 +1,16 @@
+@startuml
+title HU02 - Consultar y Buscar Productos - Caso de Uso
+left to right direction
+actor "Encargado de Farmacia" as Encargado
+rectangle "Sistema VidaSalud" {
+  usecase "Consultar productos" as UC_Consultar
+  usecase "Buscar producto por nombre" as UC_Buscar
+  usecase "Mostrar información del producto" as UC_Mostrar
+  usecase "Informar que no existen resultados" as UC_SinResultados
+}
+Encargado --> UC_Consultar
+Encargado --> UC_Buscar
+UC_Consultar ..> UC_Mostrar : <<include>>
+UC_Buscar ..> UC_Mostrar : <<include>>
+UC_SinResultados ..> UC_Buscar : <<extend>>
+@enduml

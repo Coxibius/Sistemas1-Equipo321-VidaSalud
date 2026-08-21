@@ -1,0 +1,40 @@
+@startuml
+title HU03 - Registrar Entradas y Salidas - Diagrama de Secuencia
+actor "Encargado de Farmacia" as Encargado
+boundary "Interfaz de Inventario" as UI
+control "MovimientoController" as Controller
+control "InventarioService" as Service
+database "MovimientoRepository" as MovRepo
+database "ProductoRepository" as ProdRepo
+database "Base de Datos" as DB
+
+Encargado -> UI : ingresarMovimiento(producto,tipo,cantidad)
+UI -> Controller : registrarMovimiento(datos)
+Controller -> Service : validarMovimiento(datos)
+Service -> ProdRepo : obtenerStock(producto)
+ProdRepo -> DB : consultarStock(producto)
+DB --> ProdRepo : stockActual
+ProdRepo --> Service : stockActual
+
+alt Cantidad inválida
+  Service --> Controller : validacionFallida()
+  Controller --> UI : mostrarError("Cantidad inválida")
+  UI --> Encargado : Mostrar error
+else Salida mayor al stock
+  Service --> Controller : movimientoRechazado("Stock insuficiente")
+  Controller --> UI : mostrarError("Stock insuficiente")
+  UI --> Encargado : Mostrar error
+else Movimiento válido
+  Service -> Service : actualizarStock(producto,tipo,cantidad)
+  Service -> MovRepo : guardarMovimiento(movimiento)
+  MovRepo -> DB : insertarMovimiento(movimiento)
+  DB --> MovRepo : movimientoRegistrado
+  MovRepo --> Service : movimientoRegistrado
+  Service -> ProdRepo : guardarStock(producto)
+  ProdRepo -> DB : actualizarStock(producto)
+  DB --> ProdRepo : stockActualizado
+  Service --> Controller : movimientoRegistrado()
+  Controller --> UI : mostrarConfirmacion()
+  UI --> Encargado : Mostrar confirmación
+end
+@enduml

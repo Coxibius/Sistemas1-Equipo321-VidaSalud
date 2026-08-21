@@ -1,0 +1,9 @@
+@startuml
+title HU03 - Estados de un Movimiento de Inventario
+[*] --> Pendiente
+Pendiente --> Validado : validarMovimiento()
+Pendiente --> Rechazado : validacionFallida()
+Validado --> Registrado : guardarMovimiento()
+Registrado --> [*]
+Rechazado --> [*]
+@enduml

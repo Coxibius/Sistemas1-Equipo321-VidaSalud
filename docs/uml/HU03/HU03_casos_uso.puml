@@ -1,0 +1,15 @@
+@startuml
+title HU03 - Registrar Entradas y Salidas - Caso de Uso
+left to right direction
+actor "Encargado de Farmacia" as Encargado
+rectangle "Sistema VidaSalud" {
+  usecase "Registrar movimiento" as UC_Mov
+  usecase "Validar cantidad" as UC_Validar
+  usecase "Actualizar stock" as UC_Stock
+  usecase "Rechazar movimiento" as UC_Rechazar
+}
+Encargado --> UC_Mov
+UC_Mov ..> UC_Validar : <<include>>
+UC_Mov ..> UC_Stock : <<include>>
+UC_Rechazar ..> UC_Mov : <<extend>>
+@enduml

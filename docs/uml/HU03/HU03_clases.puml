@@ -1,0 +1,46 @@
+@startuml
+title HU03 - Registrar Entradas y Salidas - Diagrama de Clases
+class Producto {
+  - nombre : String
+  - categoria : String
+  - precio : Decimal
+  - cantidad : Integer
+  - fechaVencimiento : Date
+}
+class MovimientoInventario {
+  - tipo : TipoMovimiento
+  - cantidad : Integer
+  - fecha : Date
+  - estado : EstadoMovimiento
+}
+enum TipoMovimiento {
+  ENTRADA
+  SALIDA
+}
+enum EstadoMovimiento {
+  PENDIENTE
+  VALIDADO
+  RECHAZADO
+  REGISTRADO
+}
+class MovimientoController {
+  + registrarMovimiento(datos : MovimientoInventario) : Resultado
+}
+class InventarioService {
+  + validarMovimiento(datos : MovimientoInventario) : Boolean
+  + actualizarStock(producto : Producto, tipo : TipoMovimiento, cantidad : Integer) : void
+}
+class MovimientoRepository {
+  + guardarMovimiento(movimiento : MovimientoInventario) : Resultado
+}
+class ProductoRepository {
+  + obtenerStock(producto : Producto) : Integer
+  + guardarStock(producto : Producto) : void
+}
+MovimientoController --> InventarioService : utiliza
+InventarioService --> MovimientoRepository : utiliza
+InventarioService --> ProductoRepository : utiliza
+MovimientoInventario --> Producto : corresponde a
+MovimientoInventario --> TipoMovimiento
+MovimientoInventario --> EstadoMovimiento
+@enduml

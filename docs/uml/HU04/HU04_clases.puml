@@ -1,0 +1,41 @@
+@startuml
+title HU04 - Controlar Vencimientos - Diagrama de Clases
+class Producto {
+  - nombre : String
+  - categoria : String
+  - precio : Decimal
+  - cantidad : Integer
+  - fechaVencimiento : Date
+}
+class VencimientoController {
+  + consultarVencimientos() : List<Producto>
+}
+class VencimientoService {
+  + consultarVencimientos() : List<Producto>
+  + verificarVencimiento(producto : Producto) : EstadoVencimiento
+  + generarAlertaVencimiento(producto : Producto) : Alerta
+}
+class ProductoRepository {
+  + obtenerProductosConVencimiento() : List<Producto>
+}
+class Alerta {
+  - mensaje : String
+  - fecha : Date
+  - tipo : TipoAlerta
+}
+enum EstadoVencimiento {
+  VIGENTE
+  PROXIMO_A_VENCER
+  VENCIDO
+}
+enum TipoAlerta {
+  PROXIMO_VENCIMIENTO
+  VENCIMIENTO
+}
+VencimientoController --> VencimientoService : utiliza
+VencimientoService --> ProductoRepository : consulta
+VencimientoService --> Producto : verifica
+VencimientoService --> Alerta : genera
+Producto --> EstadoVencimiento : tiene estado
+Alerta --> TipoAlerta
+@enduml

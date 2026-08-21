@@ -1,0 +1,34 @@
+@startuml
+title HU04 - Controlar Vencimientos - Diagrama de Secuencia
+actor "Encargado de Farmacia" as Encargado
+boundary "Interfaz de Vencimientos" as UI
+control "VencimientoController" as Controller
+control "VencimientoService" as Service
+database "ProductoRepository" as Repository
+database "Base de Datos" as DB
+
+Encargado -> UI : consultarVencimientos()
+UI -> Controller : consultarVencimientos()
+Controller -> Service : consultarVencimientos()
+Service -> Repository : obtenerProductosConVencimiento()
+Repository -> DB : consultarProductos()
+DB --> Repository : productos
+Repository --> Service : productos
+Service -> Service : verificarVencimiento(producto)
+
+alt Producto vencido
+  Service -> Service : generarAlertaVencimiento(producto)
+  Service --> Controller : productoVencido(producto)
+  Controller --> UI : mostrarAlerta("Producto vencido")
+  UI --> Encargado : Mostrar producto vencido
+else Faltan 30 días o menos
+  Service -> Service : generarAlertaVencimiento(producto)
+  Service --> Controller : productoProximoAVencer(producto)
+  Controller --> UI : mostrarAlerta("Próximo a vencer")
+  UI --> Encargado : Mostrar alerta
+else Más de 30 días
+  Service --> Controller : productoVigente(producto)
+  Controller --> UI : mostrarProductoVigente(producto)
+  UI --> Encargado : Mostrar producto vigente
+end
+@enduml

@@ -1,0 +1,15 @@
+@startuml
+title HU04 - Controlar Vencimientos - Caso de Uso
+left to right direction
+actor "Encargado de Farmacia" as Encargado
+rectangle "Sistema VidaSalud" {
+  usecase "Consultar vencimientos" as UC_Consultar
+  usecase "Verificar fecha de vencimiento" as UC_Verificar
+  usecase "Generar alerta de vencimiento" as UC_Alerta
+  usecase "Identificar producto vencido" as UC_Vencido
+}
+Encargado --> UC_Consultar
+UC_Consultar ..> UC_Verificar : <<include>>
+UC_Verificar ..> UC_Alerta : <<include>>
+UC_Vencido ..> UC_Verificar : <<extend>>
+@enduml

@@ -1,0 +1,8 @@
+@startuml
+title HU04 - Estados de Vencimiento de un Producto
+[*] --> Vigente
+Vigente --> ProximoAVencer : faltan <= 30 días
+ProximoAVencer --> Vencido : fecha actual >= fecha vencimiento
+Vigente --> Vencido : fecha actual >= fecha vencimiento
+Vencido --> [*]
+@enduml

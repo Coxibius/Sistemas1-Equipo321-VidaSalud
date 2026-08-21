@@ -1,0 +1,24 @@
+@startuml
+title HU01 - Registrar Producto - Caso de Uso
+
+left to right direction
+
+actor "Encargado de Farmacia" as Encargado
+
+rectangle "Sistema VidaSalud" {
+
+    usecase "Registrar producto" as UC_Registrar
+
+    usecase "Validar datos del producto" as UC_Validar
+    usecase "Verificar producto duplicado" as UC_Duplicado
+    usecase "Mostrar error de validación" as UC_Error
+}
+
+Encargado --> UC_Registrar
+
+UC_Registrar ..> UC_Validar : <<include>>
+UC_Registrar ..> UC_Duplicado : <<include>>
+
+UC_Error ..> UC_Registrar : <<extend>>
+
+@enduml

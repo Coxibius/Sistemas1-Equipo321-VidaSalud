@@ -1,0 +1,51 @@
+@startuml
+title HU01 - Registrar Producto - Diagrama de Secuencia
+
+actor "Encargado de Farmacia" as Encargado
+boundary "Interfaz de Productos" as UI
+control "ProductoController" as Controller
+control "ProductoService" as Service
+database "ProductoRepository" as Repository
+database "Base de Datos" as DB
+
+Encargado -> UI : ingresarDatosProducto()
+UI -> Controller : registrarProducto(datos)
+
+Controller -> Service : validarProducto(datos)
+
+alt Campos obligatorios incompletos
+    Service --> Controller : validacionFallida("Campos obligatorios")
+    Controller --> UI : mostrarError("Complete los campos obligatorios")
+    UI --> Encargado : Mostrar mensaje de error
+
+else Precio o cantidad negativos
+    Service --> Controller : validacionFallida("Valores negativos")
+    Controller --> UI : mostrarError("Precio o cantidad inválidos")
+    UI --> Encargado : Mostrar mensaje de error
+
+else Datos válidos
+    Controller -> Service : existeProducto(nombre)
+
+    Service -> Repository : buscarPorNombre(nombre)
+    Repository -> DB : consultarProducto(nombre)
+    DB --> Repository : resultado
+    Repository --> Service : productoEncontrado
+
+    alt Producto duplicado
+        Service --> Controller : registroRechazado("Producto duplicado")
+        Controller --> UI : mostrarError("El producto ya existe")
+        UI --> Encargado : Mostrar mensaje de error
+
+    else Producto no existe
+        Controller -> Service : guardarProducto(datos)
+        Service -> Repository : guardarProducto(producto)
+        Repository -> DB : insertarProducto(producto)
+        DB --> Repository : productoRegistrado
+        Repository --> Service : productoRegistrado
+        Service --> Controller : registroExitoso()
+        Controller --> UI : mostrarConfirmacion()
+        UI --> Encargado : Mostrar "Producto registrado correctamente"
+    end
+end
+
+@enduml

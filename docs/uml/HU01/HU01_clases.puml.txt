@@ -1,0 +1,33 @@
+@startuml
+title HU01 - Registrar Producto - Diagrama de Clases
+
+class Producto {
+    - nombre : String
+    - categoria : String
+    - precio : Decimal
+    - cantidad : Integer
+    - fechaVencimiento : Date
+}
+
+class ProductoController {
+    + registrarProducto(datos : Producto) : Resultado
+    + mostrarError(mensaje : String) : void
+    + mostrarConfirmacion() : void
+}
+
+class ProductoService {
+    + validarProducto(datos : Producto) : Boolean
+    + existeProducto(nombre : String) : Boolean
+    + guardarProducto(producto : Producto) : Resultado
+}
+
+class ProductoRepository {
+    + buscarPorNombre(nombre : String) : Producto
+    + guardarProducto(producto : Producto) : Resultado
+}
+
+ProductoController --> ProductoService : utiliza
+ProductoService --> ProductoRepository : utiliza
+ProductoRepository --> Producto : gestiona
+
+@enduml

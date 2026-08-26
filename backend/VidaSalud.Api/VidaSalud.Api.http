@@ -1,0 +1,57 @@
+@VidaSalud.Api_HostAddress = http://localhost:5237
+
+### 1. Registrar producto exitoso con su lote inicial (HU01)
+POST {{VidaSalud.Api_HostAddress}}/api/productos
+Content-Type: application/json
+
+{
+  "nombre": "Amoxicilina 500mg",
+  "categoria": "Antibióticos",
+  "precio": 12.50,
+  "cantidad": 100,
+  "fechaVencimiento": "2027-08-30"
+}
+
+###
+
+### 2. Intento de registrar producto duplicado (Debe retornar 409 Conflict)
+POST {{VidaSalud.Api_HostAddress}}/api/productos
+Content-Type: application/json
+
+{
+  "nombre": "Amoxicilina 500mg",
+  "categoria": "Antibióticos",
+  "precio": 12.50,
+  "cantidad": 50,
+  "fechaVencimiento": "2027-08-30"
+}
+
+###
+
+### 3. Intento de registrar con categoría inexistente (Debe retornar 400 Bad Request)
+POST {{VidaSalud.Api_HostAddress}}/api/productos
+Content-Type: application/json
+
+{
+  "nombre": "Producto Inexistente XYZ",
+  "categoria": "CategoriaFalsa999",
+  "precio": 10.00,
+  "cantidad": 10,
+  "fechaVencimiento": "2027-12-31"
+}
+
+###
+
+### 4. Intento de registrar con valores inválidos / negativos (Debe retornar 400 Bad Request)
+POST {{VidaSalud.Api_HostAddress}}/api/productos
+Content-Type: application/json
+
+{
+  "nombre": "",
+  "categoria": "Analgésicos",
+  "precio": -5.00,
+  "cantidad": -10,
+  "fechaVencimiento": "2027-12-31"
+}
+
+###

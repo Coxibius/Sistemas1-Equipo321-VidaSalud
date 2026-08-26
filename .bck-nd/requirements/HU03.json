@@ -1,80 +1,64 @@
 {
   "story": {
     "id": "HU03",
-    "title": "Consultar inventario",
-    "role": "auxiliar de farmacia",
-    "want": "buscar un producto y consultar su stock",
-    "benefit": "responder rápidamente sobre la disponibilidad de un producto",
+    "title": "Registrar entradas y salidas de inventario",
+    "role": "encargado de farmacia",
+    "want": "registrar movimientos de entrada y salida de productos",
+    "benefit": "mantener actualizadas las existencias reales del stock",
     "status": "TODO"
   },
   "business_rules": [
-    {
-      "id": "BR01",
-      "description": "La consulta debe mostrar únicamente productos registrados y activos."
-    },
-    {
-      "id": "BR02",
-      "description": "El stock mostrado debe corresponder al inventario registrado."
-    }
+    { "id": "BR01", "description": "Una salida no puede superar el stock disponible." },
+    { "id": "BR02", "description": "El stock total nunca puede resultar negativo." },
+    { "id": "BR03", "description": "El stock debe recalcularse automáticamente tras registrar el movimiento." }
   ],
   "acceptance_criteria": [
     {
       "id": "AC01",
-      "given": "existe un producto registrado",
-      "when": "el usuario busca por nombre",
-      "then": "el sistema muestra el producto y su stock disponible"
+      "given": "un producto existente y una cantidad válida de entrada",
+      "when": "se registra el movimiento",
+      "then": "el stock se incrementa y el movimiento pasa a estado Registrado"
     },
     {
       "id": "AC02",
-      "given": "existe un código de producto válido",
-      "when": "el usuario busca por código",
-      "then": "el sistema muestra el producto correspondiente"
+      "given": "una salida con cantidad menor o igual al stock disponible",
+      "when": "se registra el movimiento",
+      "then": "el stock se descuenta correctamente"
     },
     {
       "id": "AC03",
-      "given": "no existen productos que coincidan con el criterio",
-      "when": "el usuario ejecuta la búsqueda",
-      "then": "el sistema informa que no se encontraron resultados"
+      "given": "una salida cuya cantidad supera el stock disponible",
+      "when": "el usuario intenta registrarla",
+      "then": "el sistema rechaza el movimiento por stock insuficiente"
     },
     {
       "id": "AC04",
-      "given": "un producto tiene stock igual a cero",
-      "when": "el usuario consulta el producto",
-      "then": "el sistema lo muestra como sin stock"
+      "given": "una cantidad igual o menor a cero",
+      "when": "se intenta guardar el movimiento",
+      "then": "el sistema rechaza la operación por cantidad inválida"
+    },
+    {
+      "id": "AC05",
+      "given": "cualquier movimiento validado",
+      "when": "se confirma la transacción",
+      "then": "queda constancia de fecha, tipo y responsable"
     }
   ],
   "required_data": [
-    {
-      "field": "criterio_busqueda",
-      "type": "string"
-    },
-    {
-      "field": "producto",
-      "type": "object"
-    },
-    {
-      "field": "stock_actual",
-      "type": "integer"
-    },
-    {
-      "field": "lotes",
-      "type": "array"
-    }
+    { "field": "producto_id", "type": "integer" },
+    { "field": "tipo_movimiento", "type": "ENUM(ENTRADA, SALIDA)" },
+    { "field": "cantidad", "type": "integer > 0" },
+    { "field": "fecha", "type": "timestamp" }
   ],
   "validations": [
-    {
-      "field": "criterio_busqueda",
-      "rule": "no debe estar vacío"
-    }
+    { "field": "cantidad", "rule": "entero positivo mayor a cero" },
+    { "field": "tipo_movimiento", "rule": "debe ser ENTRADA o SALIDA" }
   ],
   "exceptions": [
-    {
-      "code": "NO_RESULTS",
-      "description": "No existen productos que coincidan con el criterio de búsqueda."
-    }
+    { "code": "INSUFFICIENT_STOCK", "description": "La salida supera el stock disponible." },
+    { "code": "INVALID_QUANTITY", "description": "La cantidad debe ser mayor a cero." }
   ],
   "open_questions": [
-    "¿La búsqueda deberá permitir también código de barras?",
-    "¿Los productos con stock cero deben mostrarse siempre o existir un filtro para ocultarlos?"
+    "¿Se debe requerir un motivo o justificación en las salidas por merma/daño?"
   ]
 }

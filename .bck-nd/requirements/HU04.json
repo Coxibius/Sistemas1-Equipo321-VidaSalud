@@ -1,0 +1,55 @@
+{
+  "story": {
+    "id": "HU04",
+    "title": "Controlar vencimientos y alertas",
+    "role": "encargado de farmacia",
+    "want": "identificar los productos próximos a vencer o vencidos",
+    "benefit": "tomar acciones preventivas de rotación o retiro oportuno",
+    "status": "TODO"
+  },
+  "business_rules": [
+    { "id": "BR01", "description": "Se debe generar una alerta preventiva con 30 días o menos de anticipación al vencimiento." },
+    { "id": "BR02", "description": "Los productos cuya fecha actual sea mayor o igual al vencimiento deben marcarse como vencidos." }
+  ],
+  "acceptance_criteria": [
+    {
+      "id": "AC01",
+      "given": "productos con fecha de vencimiento a más de 30 días",
+      "when": "el sistema evalúa las fechas",
+      "then": "se mantienen en estado Vigente sin alertas"
+    },
+    {
+      "id": "AC02",
+      "given": "un producto con fecha de vencimiento en 30 días o menos",
+      "when": "se evalúa el estado",
+      "then": "el sistema genera una alerta visual de 'Próximo a vencer'"
+    },
+    {
+      "id": "AC03",
+      "given": "un producto cuya fecha de vencimiento ya pasó",
+      "when": "se consulta el sistema",
+      "then": "se clasifica como 'Vencido' y se bloquea para salidas de venta"
+    },
+    {
+      "id": "AC04",
+      "given": "el usuario consulta la sección de alertas",
+      "when": "ingresa al módulo de vencimientos",
+      "then": "el sistema muestra el listado ordenado por fecha de vencimiento más próxima"
+    }
+  ],
+  "required_data": [
+    { "field": "producto_id", "type": "integer" },
+    { "field": "fecha_vencimiento", "type": "date" },
+    { "field": "dias_restantes", "type": "integer" },
+    { "field": "estado_vencimiento", "type": "ENUM(VIGENTE, PROXIMO_A_VENCER, VENCIDO)" }
+  ],
+  "validations": [
+    { "field": "fecha_vencimiento", "rule": "formato de fecha válido ISO 8601" }
+  ],
+  "exceptions": [
+    { "code": "PRODUCT_EXPIRED", "description": "El producto se encuentra vencido." }
+  ],
+  "open_questions": [
+    "¿El umbral de alerta (30 días) debe ser configurable por categoría de producto?"
+  ]
+}

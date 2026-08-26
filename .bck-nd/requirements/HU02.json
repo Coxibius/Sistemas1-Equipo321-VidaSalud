@@ -1,106 +1,55 @@
 {
   "story": {
     "id": "HU02",
-    "title": "Registrar lote y vencimiento",
-    "role": "encargado de farmacia",
-    "want": "registrar el lote, la fecha de vencimiento y la cantidad recibida de un producto",
-    "benefit": "controlar oportunamente los productos próximos a vencer",
+    "title": "Consultar y buscar productos",
+    "role": "auxiliar o encargado de farmacia",
+    "want": "consultar y buscar productos por nombre o código",
+    "benefit": "conocer rápidamente su información y stock disponible",
     "status": "TODO"
   },
   "business_rules": [
-    {
-      "id": "BR01",
-      "description": "Un lote debe estar asociado a un producto existente."
-    },
-    {
-      "id": "BR02",
-      "description": "Un mismo código de lote no debe duplicarse dentro del mismo producto."
-    }
+    { "id": "BR01", "description": "La búsqueda permite coincidencias parciales por nombre." },
+    { "id": "BR02", "description": "Si no existen coincidencias, el sistema debe informar al usuario sin arrojar errores." }
   ],
   "acceptance_criteria": [
     {
       "id": "AC01",
-      "given": "existe un producto registrado",
-      "when": "el usuario registra un lote válido",
-      "then": "el lote queda asociado al producto"
+      "given": "existen productos registrados",
+      "when": "el usuario ingresa un nombre o coincidencia parcial",
+      "then": "el sistema lista los productos coincidentes con su stock y precio"
     },
     {
       "id": "AC02",
-      "given": "el lote ya existe para el producto",
-      "when": "el usuario intenta registrarlo nuevamente",
-      "then": "el sistema evita el duplicado y notifica al usuario"
+      "given": "el usuario no ingresa criterio",
+      "when": "ejecuta la consulta",
+      "then": "el sistema muestra el listado general del inventario"
     },
     {
       "id": "AC03",
-      "given": "la cantidad recibida es negativa",
-      "when": "el usuario intenta guardar el lote",
-      "then": "el sistema rechaza el registro"
+      "given": "no existen coincidencias con el término buscado",
+      "when": "se realiza la búsqueda",
+      "then": "el sistema muestra el mensaje 'Sin resultados encontrados'"
     },
     {
       "id": "AC04",
-      "given": "la fecha de vencimiento no tiene un formato válido",
-      "when": "el usuario intenta guardar el lote",
-      "then": "el sistema rechaza el registro"
-    },
-    {
-      "id": "AC05",
-      "given": "la fecha de vencimiento ya pasó",
-      "when": "el sistema determina su disponibilidad",
-      "then": "el lote no debe considerarse disponible para venta"
+      "given": "un producto tiene stock en cero",
+      "when": "se muestra en el listado",
+      "then": "se debe indicar visualmente como 'Sin stock'"
     }
   ],
   "required_data": [
-    {
-      "field": "producto_id",
-      "type": "integer"
-    },
-    {
-      "field": "codigo_lote",
-      "type": "string"
-    },
-    {
-      "field": "fecha_vencimiento",
-      "type": "date válida"
-    },
-    {
-      "field": "cantidad",
-      "type": "integer >= 0"
-    }
+    { "field": "criterio_busqueda", "type": "string (opcional)" },
+    { "field": "nombre", "type": "string" },
+    { "field": "stock_actual", "type": "integer" },
+    { "field": "precio", "type": "decimal" }
   ],
   "validations": [
-    {
-      "field": "producto_id",
-      "rule": "debe corresponder a un producto existente"
-    },
-    {
-      "field": "codigo_lote",
-      "rule": "obligatorio y único dentro del producto"
-    },
-    {
-      "field": "fecha_vencimiento",
-      "rule": "debe tener un formato de fecha válido"
-    },
-    {
-      "field": "cantidad",
-      "rule": "debe ser un entero mayor o igual a cero"
-    }
+    { "field": "criterio_busqueda", "rule": "texto sanitizado contra inyecciones" }
   ],
   "exceptions": [
-    {
-      "code": "PRODUCT_NOT_FOUND",
-      "description": "El producto asociado al lote no existe."
-    },
-    {
-      "code": "DUPLICATE_LOT",
-      "description": "El lote ya está registrado para el producto."
-    },
-    {
-      "code": "INVALID_DATA",
-      "description": "Uno o más datos del lote no cumplen las validaciones."
-    }
+    { "code": "NO_RESULTS", "description": "No se encontraron productos coincidentes." }
   ],
   "open_questions": [
-    "¿Un lote con fecha de vencimiento pasada debe rechazarse al registrarse o almacenarse con estado vencido?",
-    "¿La cantidad de un lote existente puede incrementarse mediante una nueva entrada?"
+    "¿Se requiere paginación para más de 50 productos?"
   ]
 }

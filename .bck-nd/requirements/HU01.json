@@ -3,116 +3,64 @@
     "id": "HU01",
     "title": "Registrar producto",
     "role": "encargado de farmacia",
-    "want": "registrar un producto con su información básica",
-    "benefit": "mantener el inventario organizado",
+    "want": "registrar un producto con su información básica y lote inicial",
+    "benefit": "mantener el inventario organizado y actualizado",
     "status": "TODO"
   },
   "business_rules": [
-    {
-      "id": "BR01",
-      "description": "Solo usuarios con rol de encargado de inventario o administrador pueden registrar productos."
-    },
-    {
-      "id": "BR02",
-      "description": "Un mismo producto puede tener múltiples lotes."
-    }
+    { "id": "BR01", "description": "El nombre, precio y cantidad son campos obligatorios." },
+    { "id": "BR02", "description": "No se permiten precios ni cantidades negativas." },
+    { "id": "BR03", "description": "No se permiten productos duplicados con el mismo nombre." }
   ],
   "acceptance_criteria": [
     {
       "id": "AC01",
-      "given": "el usuario tiene permisos para registrar productos",
-      "when": "completa todos los datos obligatorios con valores válidos",
-      "then": "el sistema registra correctamente el producto"
+      "given": "el usuario completa todos los datos obligatorios con valores válidos",
+      "when": "selecciona Guardar",
+      "then": "el sistema registra correctamente el producto y emite confirmación"
     },
     {
       "id": "AC02",
-      "given": "el usuario intenta registrar un producto",
-      "when": "falta un dato obligatorio",
-      "then": "el sistema rechaza el registro e indica qué campo falta"
+      "given": "falta uno o más campos obligatorios",
+      "when": "el usuario intenta guardar",
+      "then": "el sistema rechaza el registro e indica los campos faltantes"
     },
     {
       "id": "AC03",
-      "given": "el usuario intenta registrar un producto",
-      "when": "la cantidad o el precio son negativos",
-      "then": "el sistema rechaza el registro"
+      "given": "el precio o la cantidad son negativos",
+      "when": "el usuario intenta guardar",
+      "then": "el sistema rechaza la operación por valores inválidos"
     },
     {
       "id": "AC04",
-      "given": "el producto ya existe",
-      "when": "se registra un nuevo lote válido",
-      "then": "el sistema permite asociar el nuevo lote al producto existente"
+      "given": "ya existe un producto con el mismo nombre en el sistema",
+      "when": "el usuario intenta registrarlo",
+      "then": "el sistema notifica que el producto ya existe y evita el duplicado"
     },
     {
       "id": "AC05",
-      "given": "el usuario no tiene permisos de modificación",
-      "when": "intenta registrar un producto",
-      "then": "el sistema rechaza la operación por falta de autorización"
+      "given": "un producto es registrado exitosamente",
+      "when": "se consulta el inventario",
+      "then": "el producto debe aparecer disponible para su gestión"
     }
   ],
   "required_data": [
-    {
-      "field": "nombre",
-      "type": "string"
-    },
-    {
-      "field": "categoria",
-      "type": "string"
-    },
-    {
-      "field": "precio",
-      "type": "decimal >= 0"
-    },
-    {
-      "field": "cantidad",
-      "type": "integer >= 0"
-    },
-    {
-      "field": "fecha_vencimiento",
-      "type": "date válida"
-    },
-    {
-      "field": "lote",
-      "type": "string"
-    }
+    { "field": "nombre", "type": "string" },
+    { "field": "categoria", "type": "string" },
+    { "field": "precio", "type": "decimal >= 0" },
+    { "field": "cantidad", "type": "integer >= 0" },
+    { "field": "fecha_vencimiento", "type": "date válida" }
   ],
   "validations": [
-    {
-      "field": "nombre",
-      "rule": "obligatorio y no vacío"
-    },
-    {
-      "field": "categoria",
-      "rule": "obligatoria"
-    },
-    {
-      "field": "precio",
-      "rule": "debe ser mayor o igual a cero"
-    },
-    {
-      "field": "cantidad",
-      "rule": "debe ser un entero mayor o igual a cero"
-    },
-    {
-      "field": "fecha_vencimiento",
-      "rule": "debe tener un formato de fecha válido"
-    },
-    {
-      "field": "lote",
-      "rule": "obligatorio"
-    }
+    { "field": "nombre", "rule": "obligatorio y único" },
+    { "field": "precio", "rule": "numérico mayor o igual a 0" },
+    { "field": "cantidad", "rule": "entero mayor o igual a 0" }
   ],
   "exceptions": [
-    {
-      "code": "UNAUTHORIZED",
-      "description": "El usuario no tiene permisos para registrar productos."
-    },
-    {
-      "code": "INVALID_DATA",
-      "description": "Uno o más datos proporcionados no cumplen las validaciones."
-    }
+    { "code": "DUPLICATE_PRODUCT", "description": "El producto ya existe en el sistema." },
+    { "code": "VALIDATION_ERROR", "description": "Datos obligatorios incompletos o valores negativos." }
   ],
   "open_questions": [
-    "¿Un producto con fecha de vencimiento pasada debe rechazarse o registrarse como vencido?",
-    "¿El proveedor será obligatorio en una versión posterior?"
+    "¿Se requerirá código de barras opcional en el registro inicial?"
   ]
 }

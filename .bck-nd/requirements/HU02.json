@@ -5,7 +5,7 @@
     "role": "auxiliar o encargado de farmacia",
     "want": "consultar y buscar productos por nombre o código",
     "benefit": "conocer rápidamente su información y stock disponible",
-    "status": "TODO"
+    "status": "DONE"
   },
   "business_rules": [
     { "id": "BR01", "description": "La búsqueda permite coincidencias parciales por nombre." },

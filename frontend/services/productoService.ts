@@ -1,6 +1,6 @@
 import { api } from './api';
 import { Producto, ProductoResponse } from '../types/producto';
-import { MovimientoInventario } from '../types/movimiento';
+import { MovimientoInventario, MovimientoResponse } from '../types/movimiento';
 import { AlertaVencimiento } from '../types/vencimiento';
 
 export const ProductoService = {
@@ -13,14 +13,14 @@ export const ProductoService = {
     // HU02: Consultar y Buscar Productos
     buscarProductos: async (criterio?: string): Promise<ProductoResponse[]> => {
         const response = await api.get<ProductoResponse[]>('/productos', {
-            params: { criterio },
+            params: { search: criterio?.trim() || undefined },
         });
         return response.data;
     },
 
     // HU03: Registrar Movimiento
-    registrarMovimiento: async (movimiento: MovimientoInventario) => {
-        const response = await api.post('/movimientos', movimiento);
+    registrarMovimiento: async (movimiento: MovimientoInventario): Promise<MovimientoResponse> => {
+        const response = await api.post<MovimientoResponse>('/movimientos', movimiento);
         return response.data;
     },
 

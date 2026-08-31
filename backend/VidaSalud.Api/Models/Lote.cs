@@ -20,9 +20,9 @@ public class Lote
         get
         {
             var hoy = DateOnly.FromDateTime(DateTime.UtcNow);
-            if (FechaVencimiento < hoy) return "Vencido";
-            if (FechaVencimiento <= hoy.AddDays(30)) return "Proximo_a_Vencer";
-            return "Vigente";
+            if (FechaVencimiento <= hoy) return "VENCIDO";
+            if (FechaVencimiento <= hoy.AddDays(30)) return "PROXIMO_A_VENCER";
+            return "VIGENTE";
         }
     }
 }

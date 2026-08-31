@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using VidaSalud.Api.Data;
@@ -11,9 +12,11 @@ using VidaSalud.Api.Data;
 namespace VidaSalud.Api.Migrations
 {
     [DbContext(typeof(VidaSaludDbContext))]
-    partial class VidaSaludDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260831163126_AddMovimientoInventario")]
+    partial class AddMovimientoInventario
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -206,64 +209,6 @@ namespace VidaSalud.Api.Migrations
                         .HasDatabaseName("idx_producto_nombre");
 
                     b.ToTable("producto", (string)null);
-                });
-
-            modelBuilder.Entity("VidaSalud.Api.Models.Usuario", b =>
-                {
-                    b.Property<int>("IdUsuario")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id_usuario");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("IdUsuario"));
-
-                    b.Property<string>("Email")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("email");
-
-                    b.Property<DateTime>("FechaRegistro")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("fecha_registro");
-
-                    b.Property<string>("Nombre")
-                        .IsRequired()
-                        .HasMaxLength(80)
-                        .HasColumnType("character varying(80)")
-                        .HasColumnName("nombre");
-
-                    b.Property<string>("NombreUsuario")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("nombre_usuario");
-
-                    b.Property<string>("PasswordHash")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)")
-                        .HasColumnName("password_hash");
-
-                    b.Property<string>("Rol")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
-                        .HasColumnName("rol");
-
-                    b.HasKey("IdUsuario");
-
-                    b.HasIndex("Email")
-                        .IsUnique()
-                        .HasDatabaseName("idx_usuario_email");
-
-                    b.HasIndex("NombreUsuario")
-                        .IsUnique()
-                        .HasDatabaseName("idx_usuario_nombre_usuario");
-
-                    b.ToTable("usuario", null, t =>
-                        {
-                            t.HasCheckConstraint("ck_usuario_rol", "rol IN ('ADMINISTRADOR', 'ENCARGADO', 'AUXILIAR')");
-                        });
                 });
 
             modelBuilder.Entity("VidaSalud.Api.Models.Lote", b =>

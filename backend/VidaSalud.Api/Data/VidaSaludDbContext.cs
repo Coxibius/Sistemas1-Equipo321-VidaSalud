@@ -12,6 +12,8 @@ public class VidaSaludDbContext : DbContext
     public DbSet<Categoria> Categorias => Set<Categoria>();
     public DbSet<Producto> Productos => Set<Producto>();
     public DbSet<Lote> Lotes => Set<Lote>();
+    public DbSet<MovimientoInventario> MovimientosInventario => Set<MovimientoInventario>();
+    public DbSet<Usuario> Usuarios => Set<Usuario>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -132,6 +134,103 @@ public class VidaSaludDbContext : DbContext
                 .HasForeignKey(l => l.IdProducto)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("fk_lote_producto");
+        });
+
+        modelBuilder.Entity<MovimientoInventario>(entity =>
+        {
+            entity.ToTable("movimiento_inventario");
+            entity.HasKey(m => m.IdMovimiento);
+
+            entity.Property(m => m.IdMovimiento)
+                .HasColumnName("id_movimiento")
+                .ValueGeneratedOnAdd();
+
+            entity.Property(m => m.IdProducto)
+                .HasColumnName("id_producto")
+                .IsRequired();
+
+            entity.Property(m => m.TipoMovimiento)
+                .HasColumnName("tipo_movimiento")
+                .HasMaxLength(10)
+                .IsRequired();
+
+            entity.Property(m => m.Cantidad)
+                .HasColumnName("cantidad")
+                .IsRequired();
+
+            entity.Property(m => m.Fecha)
+                .HasColumnName("fecha")
+                .HasColumnType("timestamp with time zone")
+                .IsRequired();
+
+            entity.Property(m => m.EstadoMovimiento)
+                .HasColumnName("estado_movimiento")
+                .HasMaxLength(15)
+                .IsRequired();
+
+            entity.Property(m => m.Responsable)
+                .HasColumnName("responsable")
+                .HasMaxLength(80)
+                .IsRequired();
+
+            entity.HasIndex(m => m.IdProducto)
+                .HasDatabaseName("idx_mov_producto");
+
+            entity.HasOne(m => m.Producto)
+                .WithMany(p => p.Movimientos)
+                .HasForeignKey(m => m.IdProducto)
+                .OnDelete(DeleteBehavior.Restrict)
+                .HasConstraintName("fk_mov_producto");
+        });
+
+        modelBuilder.Entity<Usuario>(entity =>
+        {
+            entity.ToTable("usuario", table =>
+                table.HasCheckConstraint(
+                    "ck_usuario_rol",
+                    "rol IN ('ADMINISTRADOR', 'ENCARGADO', 'AUXILIAR')"));
+            entity.HasKey(usuario => usuario.IdUsuario);
+
+            entity.Property(usuario => usuario.IdUsuario)
+                .HasColumnName("id_usuario")
+                .ValueGeneratedOnAdd();
+
+            entity.Property(usuario => usuario.Nombre)
+                .HasColumnName("nombre")
+                .HasMaxLength(80)
+                .IsRequired();
+
+            entity.Property(usuario => usuario.NombreUsuario)
+                .HasColumnName("nombre_usuario")
+                .HasMaxLength(50)
+                .IsRequired();
+
+            entity.Property(usuario => usuario.Email)
+                .HasColumnName("email")
+                .HasMaxLength(100);
+
+            entity.Property(usuario => usuario.Rol)
+                .HasColumnName("rol")
+                .HasMaxLength(20)
+                .IsRequired();
+
+            entity.Property(usuario => usuario.PasswordHash)
+                .HasColumnName("password_hash")
+                .HasMaxLength(500)
+                .IsRequired();
+
+            entity.Property(usuario => usuario.FechaRegistro)
+                .HasColumnName("fecha_registro")
+                .HasColumnType("timestamp with time zone")
+                .IsRequired();
+
+            entity.HasIndex(usuario => usuario.NombreUsuario)
+                .IsUnique()
+                .HasDatabaseName("idx_usuario_nombre_usuario");
+
+            entity.HasIndex(usuario => usuario.Email)
+                .IsUnique()
+                .HasDatabaseName("idx_usuario_email");
         });
     }
 }

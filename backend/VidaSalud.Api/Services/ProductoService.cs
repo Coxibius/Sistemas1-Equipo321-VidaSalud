@@ -104,4 +104,54 @@ public class ProductoService : IProductoService
             EstadoVencimiento = nuevoLote.EstadoVencimiento
         };
     }
+
+    public async Task<IReadOnlyList<ProductoResponseDto>> BuscarProductosAsync(
+        string? criterio,
+        CancellationToken cancellationToken = default)
+    {
+        var criterioNormalizado = criterio?.Trim();
+
+        if (criterioNormalizado?.Length > 100)
+        {
+            throw new BusinessValidationException("El criterio de búsqueda no puede exceder 100 caracteres.");
+        }
+
+        var consulta = _context.Productos
+            .AsNoTracking()
+            .Include(producto => producto.Categoria)
+            .Include(producto => producto.Lotes)
+            .AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(criterioNormalizado))
+        {
+            consulta = consulta.Where(producto =>
+                producto.Nombre.ToLower().Contains(criterioNormalizado.ToLower()));
+        }
+
+        var productos = await consulta
+            .OrderBy(producto => producto.Nombre)
+            .ToListAsync(cancellationToken);
+
+        return productos.Select(producto =>
+        {
+            var stockActual = producto.Lotes.Sum(lote => lote.Cantidad);
+            var loteProximo = producto.Lotes
+                .Where(lote => lote.Cantidad > 0)
+                .OrderBy(lote => lote.FechaVencimiento)
+                .FirstOrDefault();
+
+            return new ProductoResponseDto
+            {
+                Id = producto.IdProducto,
+                Nombre = producto.Nombre,
+                Categoria = producto.Categoria?.NombreCategoria ?? string.Empty,
+                Precio = producto.Precio,
+                Cantidad = stockActual,
+                FechaVencimiento = loteProximo?.FechaVencimiento.ToString("yyyy-MM-dd") ?? string.Empty,
+                CreadoEn = producto.FechaCreacion.ToString("yyyy-MM-dd"),
+                LoteId = loteProximo?.IdLote ?? 0,
+                EstadoVencimiento = loteProximo?.EstadoVencimiento ?? "Sin stock"
+            };
+        }).ToList();
+    }
 }

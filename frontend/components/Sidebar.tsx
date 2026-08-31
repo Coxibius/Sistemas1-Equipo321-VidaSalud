@@ -1,17 +1,28 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { obtenerEtiquetaRol, UsuarioSesion } from '../types/usuario';
 
 interface SidebarProps {
     pantallaActual: string;
     alSeleccionar: (pantalla: string) => void;
+    usuario: UsuarioSesion;
+    alCerrarSesion: () => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ pantallaActual, alSeleccionar }) => {
+export const Sidebar: React.FC<SidebarProps> = ({
+    pantallaActual,
+    alSeleccionar,
+    usuario,
+    alCerrarSesion,
+}) => {
     const menuItems = [
         { id: 'dashboard', label: '📊 Dashboard' },
         { id: 'productos', label: '💊 Productos' },
         { id: 'inventario', label: '📦 Inventario' },
         { id: 'vencimientos', label: '⏰ Vencimientos' },
+        ...(usuario.rol === 'ADMINISTRADOR'
+            ? [{ id: 'usuarios', label: '👥 Usuarios' }]
+            : []),
     ];
 
     return (
@@ -40,10 +51,20 @@ export const Sidebar: React.FC<SidebarProps> = ({ pantallaActual, alSeleccionar 
                 })}
             </View>
 
-            {/* Botón Cerrar Sesión al final */}
-            <TouchableOpacity style={styles.logoutButton} onPress={() => alert('Cerrando sesión...')}>
-                <Text style={styles.logoutText}>🚪 Cerrar sesión</Text>
-            </TouchableOpacity>
+            <View>
+                <View style={styles.userCard}>
+                    <View style={styles.avatar}>
+                        <Text style={styles.avatarText}>{usuario.nombre.charAt(0).toUpperCase()}</Text>
+                    </View>
+                    <View style={styles.userInfo}>
+                        <Text style={styles.userName} numberOfLines={1}>{usuario.nombre}</Text>
+                        <Text style={styles.userRole}>{obtenerEtiquetaRol(usuario.rol)}</Text>
+                    </View>
+                </View>
+                <TouchableOpacity style={styles.logoutButton} onPress={alCerrarSesion}>
+                    <Text style={styles.logoutText}>🚪 Cerrar sesión</Text>
+                </TouchableOpacity>
+            </View>
         </View>
     );
 };
@@ -102,5 +123,40 @@ const styles = StyleSheet.create({
         color: '#F87171', // Rojo suave
         fontSize: 14,
         fontWeight: '600',
+    },
+    userCard: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        borderTopWidth: 1,
+        borderTopColor: '#334155',
+        paddingHorizontal: 10,
+        paddingVertical: 14,
+    },
+    avatar: {
+        width: 34,
+        height: 34,
+        borderRadius: 17,
+        backgroundColor: '#0284C7',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginRight: 9,
+    },
+    avatarText: {
+        color: '#FFFFFF',
+        fontSize: 15,
+        fontWeight: '900',
+    },
+    userInfo: {
+        flex: 1,
+    },
+    userName: {
+        color: '#FFFFFF',
+        fontSize: 13,
+        fontWeight: '800',
+    },
+    userRole: {
+        color: '#94A3B8',
+        fontSize: 11,
+        marginTop: 2,
     },
 });

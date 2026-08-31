@@ -1,0 +1,53 @@
+{
+  "story": {
+    "id": "HU05",
+    "title": "Iniciar sesión de forma simulada",
+    "role": "usuario de VidaSalud",
+    "want": "ingresar al sistema utilizando una cuenta de demostración",
+    "benefit": "identificar visualmente al responsable que utiliza el sistema",
+    "status": "DONE"
+  },
+  "business_rules": [
+    { "id": "BR01", "description": "Solo se aceptan las cuentas de demostración de Víctor y María." },
+    { "id": "BR02", "description": "La sesión existe únicamente mientras la aplicación permanece abierta." },
+    { "id": "BR03", "description": "El usuario autenticado debe mostrarse como responsable del sistema." }
+  ],
+  "acceptance_criteria": [
+    {
+      "id": "AC01",
+      "given": "el usuario ingresa credenciales válidas de Víctor o María",
+      "when": "selecciona Iniciar sesión",
+      "then": "el sistema permite el acceso y muestra su nombre"
+    },
+    {
+      "id": "AC02",
+      "given": "el usuario ingresa una cuenta desconocida o contraseña incorrecta",
+      "when": "intenta iniciar sesión",
+      "then": "el sistema rechaza el acceso y muestra Credenciales incorrectas"
+    },
+    {
+      "id": "AC03",
+      "given": "un usuario inició sesión",
+      "when": "selecciona Cerrar sesión",
+      "then": "el sistema regresa a la pantalla de login"
+    },
+    {
+      "id": "AC04",
+      "given": "un usuario inició sesión",
+      "when": "registra un movimiento de inventario",
+      "then": "su nombre se utiliza automáticamente como responsable"
+    }
+  ],
+  "required_data": [
+    { "field": "usuario", "type": "string" },
+    { "field": "contraseña", "type": "string" }
+  ],
+  "validations": [
+    { "field": "usuario", "rule": "obligatorio" },
+    { "field": "contraseña", "rule": "obligatoria" }
+  ],
+  "exceptions": [
+    { "code": "INVALID_CREDENTIALS", "description": "Usuario o contraseña incorrectos." }
+  ],
+  "open_questions": []
+}

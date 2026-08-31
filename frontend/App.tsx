@@ -2,10 +2,36 @@ import React, { useState } from 'react';
 import { View, StyleSheet, SafeAreaView, StatusBar } from 'react-native';
 import { Sidebar } from './components/Sidebar';
 import { RegistrarProductoScreen } from './screens/RegistrarProductoScreen';
+import { ConsultarProductosScreen } from './screens/ConsultarProductosScreen';
+import { RegistrarMovimientoScreen } from './screens/RegistrarMovimientoScreen';
+import { VencimientosScreen } from './screens/VencimientosScreen';
+import { LoginScreen } from './screens/LoginScreen';
+import { UsuarioSesion } from './types/usuario';
+import { GestionUsuariosScreen } from './screens/GestionUsuariosScreen';
 
 export default function App() {
   // Guardamos en el estado qué pantalla está viendo el usuario
   const [pantallaActual, setPantallaActual] = useState('productos');
+  const [usuarioActivo, setUsuarioActivo] = useState<UsuarioSesion | null>(null);
+
+  const iniciarSesion = (usuario: UsuarioSesion) => {
+    setUsuarioActivo(usuario);
+    setPantallaActual('productos');
+  };
+
+  const cerrarSesion = () => {
+    setUsuarioActivo(null);
+    setPantallaActual('productos');
+  };
+
+  if (!usuarioActivo) {
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <StatusBar barStyle="light-content" backgroundColor="#0F172A" />
+        <LoginScreen alIniciarSesion={iniciarSesion} />
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -13,17 +39,31 @@ export default function App() {
       <View style={styles.mainLayout}>
         {/* 1. Menú lateral a la izquierda */}
         <Sidebar
-          pantallaActual={pantallaActual}
+          pantallaActual={pantallaActual === 'registrar-producto' ? 'productos' : pantallaActual}
           alSeleccionar={(pantalla) => setPantallaActual(pantalla)}
+          usuario={usuarioActivo}
+          alCerrarSesion={cerrarSesion}
         />
 
         {/* 2. Área principal de contenido a la derecha */}
         <View style={styles.contentArea}>
           {pantallaActual === 'productos' && (
-            <RegistrarProductoScreen
-              alCancelar={() => alert('Operación cancelada')}
-              alGuardarExitoso={() => alert('¡Producto guardado!')}
+            <ConsultarProductosScreen
+              alRegistrarProducto={() => setPantallaActual('registrar-producto')}
+              usuario={usuarioActivo}
             />
+          )}
+          {pantallaActual === 'registrar-producto' && (
+            <RegistrarProductoScreen
+              alCancelar={() => setPantallaActual('productos')}
+              alGuardarExitoso={() => setPantallaActual('productos')}
+              usuario={usuarioActivo}
+            />
+          )}
+          {pantallaActual === 'inventario' && <RegistrarMovimientoScreen usuario={usuarioActivo} />}
+          {pantallaActual === 'vencimientos' && <VencimientosScreen />}
+          {pantallaActual === 'usuarios' && usuarioActivo.rol === 'ADMINISTRADOR' && (
+            <GestionUsuariosScreen />
           )}
         </View>
       </View>

@@ -13,4 +13,6 @@ public class Producto
 
     // Relación de navegación: 1 Producto -> N Lotes
     public ICollection<Lote> Lotes { get; set; } = new List<Lote>();
+
+    public ICollection<MovimientoInventario> Movimientos { get; set; } = new List<MovimientoInventario>();
 }

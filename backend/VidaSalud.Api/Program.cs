@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 using VidaSalud.Api.Data;
+using VidaSalud.Api.Models;
 using VidaSalud.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,6 +12,10 @@ builder.Services.AddDbContext<VidaSaludDbContext>(options =>
 
 // 2. Inyección de Dependencias de Servicios
 builder.Services.AddScoped<IProductoService, ProductoService>();
+builder.Services.AddScoped<IMovimientoService, MovimientoService>();
+builder.Services.AddScoped<IVencimientoService, VencimientoService>();
+builder.Services.AddScoped<IUsuarioService, UsuarioService>();
+builder.Services.AddScoped<IPasswordHasher<Usuario>, PasswordHasher<Usuario>>();
 
 // 3. Controladores y JSON Options
 builder.Services.AddControllers();

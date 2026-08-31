@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView } from 'react-native';
 import { ProductoService } from '../services/productoService';
+import { obtenerEtiquetaRol, UsuarioSesion } from '../types/usuario';
 
 interface Props {
     alCancelar: () => void;
     alGuardarExitoso: () => void;
+    usuario: UsuarioSesion;
 }
 
-export const RegistrarProductoScreen: React.FC<Props> = ({ alCancelar, alGuardarExitoso }) => {
+export const RegistrarProductoScreen: React.FC<Props> = ({ alCancelar, alGuardarExitoso, usuario }) => {
     // Estado local para los campos del formulario
     const [nombre, setNombre] = useState('');
     const [categoria, setCategoria] = useState('');
@@ -63,7 +65,9 @@ export const RegistrarProductoScreen: React.FC<Props> = ({ alCancelar, alGuardar
         <ScrollView contentContainerStyle={styles.container}>
             {/* Cabecera superior con Usuario */}
             <View style={styles.topHeader}>
-                <Text style={styles.userBadge}>👤 Usuario: María López (Encargada)</Text>
+                <Text style={styles.userBadge}>
+                    👤 Usuario: {usuario.nombre} ({obtenerEtiquetaRol(usuario.rol)})
+                </Text>
             </View>
 
             {/* Tarjeta principal del Formulario */}

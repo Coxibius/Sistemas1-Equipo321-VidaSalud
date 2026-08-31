@@ -26,3 +26,85 @@ public class BusinessValidationException : Exception
     {
     }
 }
+
+public class InvalidQuantityException : Exception
+{
+    public string Code => "INVALID_QUANTITY";
+
+    public InvalidQuantityException() : base("La cantidad debe ser mayor a cero.")
+    {
+    }
+}
+
+public class InsufficientStockException : Exception
+{
+    public string Code => "INSUFFICIENT_STOCK";
+
+    public InsufficientStockException(int stockActual)
+        : base($"Stock insuficiente. Disponible: {stockActual}.")
+    {
+    }
+}
+
+public class ProductNotFoundException : Exception
+{
+    public string Code => "PRODUCT_NOT_FOUND";
+
+    public ProductNotFoundException() : base("El producto seleccionado no existe.")
+    {
+    }
+}
+
+public class ProductExpiredException : Exception
+{
+    public string Code => "PRODUCT_EXPIRED";
+
+    public ProductExpiredException() : base("El producto se encuentra vencido y no puede registrarse su salida.")
+    {
+    }
+}
+
+public class DuplicateUsernameException : Exception
+{
+    public string Code => "DUPLICATE_USERNAME";
+
+    public DuplicateUsernameException() : base("El nombre de usuario ya está registrado.")
+    {
+    }
+}
+
+public class UserNotFoundException : Exception
+{
+    public string Code => "USER_NOT_FOUND";
+
+    public UserNotFoundException() : base("El usuario solicitado no existe.")
+    {
+    }
+}
+
+public class InvalidRoleException : Exception
+{
+    public string Code => "INVALID_ROLE";
+
+    public InvalidRoleException() : base("El rol seleccionado no es válido.")
+    {
+    }
+}
+
+public class AdminProtectedException : Exception
+{
+    public string Code => "ADMIN_PROTECTED";
+
+    public AdminProtectedException(string message) : base(message)
+    {
+    }
+}
+
+public class InvalidCredentialsException : Exception
+{
+    public string Code => "INVALID_CREDENTIALS";
+
+    public InvalidCredentialsException() : base("Usuario o contraseña incorrectos.")
+    {
+    }
+}

@@ -10,4 +10,6 @@ export interface Producto {
 export interface ProductoResponse extends Producto {
     id: number;
     creadoEn?: string;
+    loteId: number;
+    estadoVencimiento: string;
 }

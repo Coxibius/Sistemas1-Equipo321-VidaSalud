@@ -14,6 +14,87 @@ Content-Type: application/json
 
 ###
 
+### 11. Login sin JWT (HU06)
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "usuario": "admin",
+  "contrasena": "admin123"
+}
+
+###
+
+### 12. Listar usuarios sin contraseñas (HU06)
+GET {{baseUrl}}/api/usuarios
+Accept: application/json
+
+###
+
+### 13. Registrar usuario (HU06)
+POST {{baseUrl}}/api/usuarios
+Content-Type: application/json
+
+{
+  "nombre": "Nuevo Auxiliar",
+  "usuario": "nuevo.auxiliar",
+  "email": "auxiliar@vidasalud.local",
+  "rol": "AUXILIAR",
+  "contrasena": "cambiar123"
+}
+
+###
+
+### 5. Obtener inventario general (HU02)
+GET {{baseUrl}}/api/productos
+Accept: application/json
+
+###
+
+### 6. Buscar productos por coincidencia parcial (HU02)
+GET {{baseUrl}}/api/productos?search=amoxi
+Accept: application/json
+
+###
+
+### 7. Búsqueda sin coincidencias: debe devolver 200 y [] (HU02)
+GET {{baseUrl}}/api/productos?search=producto-que-no-existe
+Accept: application/json
+
+###
+
+### 8. Registrar entrada de inventario (HU03)
+POST {{baseUrl}}/api/movimientos
+Content-Type: application/json
+
+{
+  "productoId": 1,
+  "tipo": "ENTRADA",
+  "cantidad": 10,
+  "responsable": "María López"
+}
+
+###
+
+### 9. Registrar salida de inventario (HU03)
+POST {{baseUrl}}/api/movimientos
+Content-Type: application/json
+
+{
+  "productoId": 1,
+  "tipo": "SALIDA",
+  "cantidad": 2,
+  "responsable": "María López"
+}
+
+###
+
+### 10. Consultar alertas de vencimiento (HU04)
+GET {{baseUrl}}/api/vencimientos/alertas
+Accept: application/json
+
+###
+
 ### 2. Intento de registrar producto duplicado (Debe retornar 409 Conflict)
 POST {{baseUrl}}/api/productos
 Content-Type: application/json

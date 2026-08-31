@@ -19,6 +19,43 @@ public class ProductosController : ControllerBase
     }
 
     /// <summary>
+    /// HU02: Obtiene el inventario general o busca productos por nombre.
+    /// </summary>
+    /// <param name="search">Texto opcional para buscar coincidencias parciales por nombre.</param>
+    /// <param name="cancellationToken">Token de cancelación de la solicitud.</param>
+    /// <returns>Listado de productos con su stock actual.</returns>
+    [HttpGet]
+    [ProducesResponseType(typeof(IReadOnlyList<ProductoResponseDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> BuscarProductos(
+        [FromQuery] string? search,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var productos = await _productoService.BuscarProductosAsync(search, cancellationToken);
+            return Ok(productos);
+        }
+        catch (BusinessValidationException ex)
+        {
+            return BadRequest(new
+            {
+                code = ex.Code,
+                message = ex.Message
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error no controlado al consultar productos.");
+            return StatusCode(StatusCodes.Status500InternalServerError, new
+            {
+                code = "INTERNAL_SERVER_ERROR",
+                message = "Ocurrió un error inesperado al consultar el inventario."
+            });
+        }
+    }
+
+    /// <summary>
     /// HU01: Registrar un nuevo producto con su lote inicial.
     /// </summary>
     /// <param name="dto">Datos del producto y lote inicial</param>

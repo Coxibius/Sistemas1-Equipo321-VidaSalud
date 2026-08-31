@@ -3,7 +3,7 @@ import { z } from 'zod';
 export const registrarProductoSchema = z.object({
     nombre: z.string().min(1, 'El nombre es obligatorio y no puede estar vacío'),
     categoria: z.string().min(1, 'La categoría es obligatoria'),
-    precio: z.number({ invalid_type_error: 'Debe ser un número' }).min(0, 'El precio debe ser mayor o igual a 0'),
+    precio: z.number({ error: 'Debe ser un número' }).min(0, 'El precio debe ser mayor o igual a 0'),
     cantidad: z.number().int().min(0, 'La cantidad debe ser un entero mayor o igual a 0'),
     fecha_vencimiento: z.string().min(1, 'La fecha de vencimiento es requerida'),
     lote: z.string().min(1, 'El código de lote es obligatorio'),

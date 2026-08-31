@@ -1,0 +1,50 @@
+{
+  "story": {
+    "id": "HU06",
+    "title": "Gestionar usuarios del sistema",
+    "role": "administrador",
+    "want": "registrar, consultar, editar y eliminar usuarios",
+    "benefit": "controlar quién puede utilizar el sistema VidaSalud",
+    "status": "DONE"
+  },
+  "business_rules": [
+    { "id": "BR01", "description": "El sistema debe tener un único usuario ADMINISTRADOR." },
+    { "id": "BR02", "description": "Los roles permitidos son ADMINISTRADOR, ENCARGADO y AUXILIAR." },
+    { "id": "BR03", "description": "El nombre de usuario debe ser único." },
+    { "id": "BR04", "description": "La contraseña debe guardarse mediante hash y nunca devolverse por la API." },
+    { "id": "BR05", "description": "El módulo de usuarios solo se muestra al ADMINISTRADOR." },
+    { "id": "BR06", "description": "No se puede crear otro administrador ni eliminar al único administrador." },
+    { "id": "BR07", "description": "La sesión continúa sin JWT ni tokens." }
+  ],
+  "acceptance_criteria": [
+    { "id": "AC01", "given": "datos válidos", "when": "el administrador registra un usuario", "then": "el usuario queda almacenado en la base de datos" },
+    { "id": "AC02", "given": "un nombre de usuario duplicado", "when": "se intenta guardar", "then": "el sistema rechaza la operación" },
+    { "id": "AC03", "given": "usuarios registrados", "when": "se consulta el módulo", "then": "se listan sin mostrar contraseñas ni hashes" },
+    { "id": "AC04", "given": "un usuario existente", "when": "se editan sus datos", "then": "el sistema actualiza nombre, usuario, email, rol o contraseña" },
+    { "id": "AC05", "given": "un usuario que no es administrador", "when": "se confirma su eliminación", "then": "el sistema elimina al usuario" },
+    { "id": "AC06", "given": "el administrador actual", "when": "se intenta eliminar o cambiar su rol", "then": "el sistema rechaza la operación" },
+    { "id": "AC07", "given": "un encargado o auxiliar", "when": "se muestra el menú", "then": "la gestión de usuarios no está disponible" }
+  ],
+  "required_data": [
+    { "field": "nombre", "type": "string" },
+    { "field": "usuario", "type": "string único" },
+    { "field": "email", "type": "string opcional" },
+    { "field": "rol", "type": "ENUM(ADMINISTRADOR, ENCARGADO, AUXILIAR)" },
+    { "field": "contraseña", "type": "string" }
+  ],
+  "validations": [
+    { "field": "nombre", "rule": "obligatorio, máximo 80 caracteres" },
+    { "field": "usuario", "rule": "obligatorio, único, máximo 50 caracteres" },
+    { "field": "email", "rule": "formato válido cuando sea proporcionado" },
+    { "field": "rol", "rule": "ADMINISTRADOR, ENCARGADO o AUXILIAR" },
+    { "field": "contraseña", "rule": "mínimo 6 caracteres al registrar" }
+  ],
+  "exceptions": [
+    { "code": "DUPLICATE_USERNAME", "description": "El nombre de usuario ya está registrado." },
+    { "code": "USER_NOT_FOUND", "description": "El usuario solicitado no existe." },
+    { "code": "INVALID_ROLE", "description": "El rol seleccionado no es válido." },
+    { "code": "ADMIN_PROTECTED", "description": "La cuenta administradora está protegida." },
+    { "code": "INVALID_CREDENTIALS", "description": "Usuario o contraseña incorrectos." }
+  ],
+  "open_questions": []
+}

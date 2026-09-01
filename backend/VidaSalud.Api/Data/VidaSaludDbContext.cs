@@ -242,6 +242,15 @@ public class VidaSaludDbContext : DbContext
                 .HasDefaultValue(true)
                 .IsRequired();
 
+            entity.Property(usuario => usuario.Eliminado)
+                .HasColumnName("eliminado")
+                .HasDefaultValue(false)
+                .IsRequired();
+
+            // La baja lógica conserva la fila y sus relaciones, pero la oculta
+            // de login, listados y consultas normales de Entity Framework.
+            entity.HasQueryFilter(usuario => !usuario.Eliminado);
+
             entity.HasIndex(usuario => usuario.NombreUsuario)
                 .IsUnique()
                 .HasDatabaseName("idx_usuario_nombre_usuario");

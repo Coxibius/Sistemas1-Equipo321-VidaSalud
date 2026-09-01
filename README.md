@@ -192,13 +192,17 @@ red Wi-Fi con aislamiento entre dispositivos también puede impedir la conexión
 | `POST` | `/api/usuarios` | Registrar usuario |
 | `PUT` | `/api/usuarios/{id}` | Editar usuario o cambiar contraseña |
 | `PUT` | `/api/usuarios/{id}/perfil` | Corregir nombre y correo propios |
-| `DELETE` | `/api/usuarios/{id}` | Eliminar usuario no administrador |
+| `DELETE` | `/api/usuarios/{id}` | Aplicar baja lógica a un usuario no administrador |
 | `GET` | `/api/auditoria` | Consultar eventos críticos recientes |
 | `GET` | `/api/solicitudes-baja` | Listar solicitudes de baja |
 | `POST` | `/api/solicitudes-baja` | Registrar una solicitud de baja |
 | `PUT` | `/api/solicitudes-baja/{id}/resolver` | Aprobar o rechazar una solicitud |
 
 Hay ejemplos adicionales en `backend/VidaSalud.Api/VidaSalud.Api.http`.
+
+La baja administrativa no borra físicamente la cuenta: establece `activo = false` y
+`eliminado = true`. El filtro global de Entity Framework la excluye del listado, perfil e inicio
+de sesión, mientras PostgreSQL conserva sus relaciones y la evidencia histórica.
 
 ## Verificaciones rápidas
 

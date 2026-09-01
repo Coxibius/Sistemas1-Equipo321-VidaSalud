@@ -80,7 +80,8 @@ public static class UsuarioFactory
             Email = datos.Email,
             Rol = datos.Rol,
             FechaRegistro = fechaRegistro,
-            Activo = true
+            Activo = true,
+            Eliminado = false
         };
 
         usuario.PasswordHash = passwordHasher.HashPassword(usuario, datos.ContrasenaInicial);

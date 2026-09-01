@@ -52,6 +52,7 @@ CREATE TABLE usuario (
     password_hash varchar(500) NOT NULL,
     fecha_registro timestamptz NOT NULL,
     activo boolean NOT NULL DEFAULT true,
+    eliminado boolean NOT NULL DEFAULT false,
     CONSTRAINT ck_usuario_rol CHECK (rol IN ('ADMINISTRADOR', 'ENCARGADO', 'AUXILIAR'))
 );
 

@@ -183,14 +183,15 @@ public class UsuarioService : IUsuarioService
         }
 
         var nombreUsuario = usuario.NombreUsuario;
-        _context.Usuarios.Remove(usuario);
+        usuario.Activo = false;
+        usuario.Eliminado = true;
         await _context.SaveChangesAsync(cancellationToken);
         await _auditoria.RegistrarAsync(
             actor,
             "ELIMINAR_USUARIO",
             "USUARIO",
             id,
-            detalle: $"Cuenta {nombreUsuario} eliminada por administración.",
+            detalle: $"Cuenta {nombreUsuario} ocultada mediante baja lógica por administración.",
             cancellationToken: cancellationToken);
     }
 
@@ -322,7 +323,9 @@ public class UsuarioService : IUsuarioService
         int? idActual,
         CancellationToken cancellationToken)
     {
-        var usuarioDuplicado = await _context.Usuarios.AnyAsync(
+        var usuarioDuplicado = await _context.Usuarios
+            .IgnoreQueryFilters()
+            .AnyAsync(
             item => item.NombreUsuario == nombreUsuario && item.IdUsuario != idActual,
             cancellationToken);
 
@@ -333,7 +336,9 @@ public class UsuarioService : IUsuarioService
 
         if (email is not null)
         {
-            var emailDuplicado = await _context.Usuarios.AnyAsync(
+            var emailDuplicado = await _context.Usuarios
+                .IgnoreQueryFilters()
+                .AnyAsync(
                 item => item.Email == email && item.IdUsuario != idActual,
                 cancellationToken);
 

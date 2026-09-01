@@ -54,6 +54,7 @@ tablas propuestas fuera del alcance del MVP, como proveedores o datos de pacient
 | `password_hash` | varchar(500) | requerido | Hash no reversible para validación |
 | `fecha_registro` | timestamptz | requerido | Alta de la cuenta |
 | `activo` | boolean | requerido, default true | Habilitación para iniciar sesión |
+| `eliminado` | boolean | requerido, default false | Baja lógica; las consultas normales ocultan la cuenta |
 
 ## `solicitud_baja`
 
@@ -85,6 +86,7 @@ tablas propuestas fuera del alcance del MVP, como proveedores o datos de pacient
 
 El modelo implementado cumple 3FN en el alcance del MVP: cada tabla representa una entidad,
 los atributos son atómicos, las relaciones usan claves foráneas y no se duplican datos de categoría
-o producto en lotes y movimientos. `nombre_usuario` se conserva deliberadamente en
-`solicitud_baja` como instantánea histórica cuando la FK queda nula; no es una dependencia usada
-para reconstruir la cuenta.
+o producto en lotes y movimientos. La eliminación administrativa de cuentas es lógica:
+`usuario.eliminado` pasa a `true`, la cuenta se oculta y la FK de `solicitud_baja` se conserva.
+`nombre_usuario` permanece como instantánea histórica. `SET NULL` es una salvaguarda ante una
+eliminación física excepcional fuera del flujo normal de la API.

@@ -73,12 +73,17 @@ La visibilidad por rol no constituye autorización criptográfica de los endpoin
 8. Una cuenta inactiva no puede iniciar sesión.
 9. Solo puede existir una solicitud de baja pendiente por usuario.
 10. Aprobar una baja desactiva la cuenta y conserva su trazabilidad histórica.
+11. La eliminación administrativa de un usuario es lógica: establece `activo = false` y
+    `eliminado = true`; la cuenta deja de mostrarse sin borrar sus relaciones históricas.
+12. Los nombres de usuario y correos eliminados continúan reservados para evitar ambigüedad en la
+    trazabilidad.
 
 ## 9. Datos personales y seguridad
 
-VidaSalud almacena únicamente nombre, usuario, correo opcional, rol, fecha de registro y estado
-de cuenta. La pantalla **Mi perfil** permite conocer y rectificar nombre/correo, y registrar una
-solicitud de baja. Las operaciones críticas se guardan en `log_auditoria` sin contraseñas ni hashes.
+VidaSalud almacena únicamente nombre, usuario, correo opcional, rol, fecha de registro y estados
+de actividad/eliminación lógica. La pantalla **Mi perfil** permite conocer y rectificar
+nombre/correo, y registrar una solicitud de baja. Las operaciones críticas se guardan en
+`log_auditoria` sin contraseñas ni hashes.
 
 Estas medidas apoyan los principios de acceso, rectificación, actualización y cancelación del
 artículo 130 de la Constitución Política del Estado y del artículo 56 del DS 1793, reglamentario de

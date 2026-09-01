@@ -153,10 +153,10 @@ export const GestionUsuariosScreen: React.FC<Props> = ({ usuarioAdministrador })
             await UsuarioService.eliminar(confirmandoEliminar.id, usuarioAdministrador.usuario);
             setConfirmandoEliminar(null);
             setEsError(false);
-            setMensaje('Usuario eliminado correctamente.');
+            setMensaje('Usuario dado de baja y ocultado correctamente.');
             await cargarUsuarios();
         } catch (error) {
-            mostrarErrorApi(error, 'No fue posible eliminar el usuario.');
+            mostrarErrorApi(error, 'No fue posible dar de baja al usuario.');
         }
     };
 
@@ -292,14 +292,15 @@ export const GestionUsuariosScreen: React.FC<Props> = ({ usuarioAdministrador })
             {confirmandoEliminar && (
                 <View style={styles.confirmBox}>
                     <Text style={styles.confirmText}>
-                        ¿Eliminar definitivamente a {confirmandoEliminar.nombre}?
+                        ¿Dar de baja a {confirmandoEliminar.nombre}? La cuenta se ocultará,
+                        no podrá iniciar sesión y sus registros históricos se conservarán.
                     </Text>
                     <View style={styles.confirmActions}>
                         <TouchableOpacity style={styles.secondaryButton} onPress={() => setConfirmandoEliminar(null)}>
                             <Text style={styles.secondaryButtonText}>Cancelar</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.deleteConfirmButton} onPress={eliminar}>
-                            <Text style={styles.deleteConfirmText}>Sí, eliminar</Text>
+                            <Text style={styles.deleteConfirmText}>Sí, dar de baja</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -356,7 +357,7 @@ export const GestionUsuariosScreen: React.FC<Props> = ({ usuarioAdministrador })
                                                 style={styles.deleteButton}
                                                 onPress={() => setConfirmandoEliminar(usuario)}
                                             >
-                                                <Text style={styles.deleteButtonText}>Eliminar</Text>
+                                                <Text style={styles.deleteButtonText}>Dar de baja</Text>
                                             </TouchableOpacity>
                                         )}
                                     </View>

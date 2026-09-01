@@ -4,10 +4,10 @@
 
 El smoke test automatizado del MVP terminó correctamente en dos ejecuciones consecutivas:
 
-- 22 verificaciones ejecutadas por corrida.
-- 22 verificaciones aprobadas por corrida.
+- 26 verificaciones ejecutadas por corrida.
+- 26 verificaciones aprobadas por corrida.
 - 0 fallos funcionales.
-- La cuenta temporal `smokeqa` fue eliminada al finalizar cada corrida.
+- La cuenta temporal con nombre único fue dada de baja lógica al finalizar cada corrida.
 - La base conservó los 8 perfiles de demostración.
 
 El script reproducible se encuentra en `scripts/smoke-test.ps1`. Se ejecuta con la API y
@@ -27,20 +27,21 @@ powershell -ExecutionPolicy Bypass -File .\scripts\smoke-test.ps1
 | HU03 | Entrada, salida válida y rechazo por stock insuficiente. |
 | HU04 | Cálculo de lotes vencidos y próximos a vencer. |
 | HU05 | Inicio de sesión válido y rechazo de contraseña incorrecta. |
-| HU06 | Crear y editar usuario; protección del administrador único. |
+| HU06 | Crear y editar usuario; protección del administrador único; baja lógica y ocultamiento. |
 | HU07 | Consultar y corregir datos, solicitar baja, aprobarla y bloquear la cuenta inactiva. |
 | Auditoría | Persistencia de las acciones críticas ejecutadas por el test. |
 
 ## Estado observable después de las pruebas
 
 - 10 productos disponibles.
-- El producto controlado `Producto Prueba Demo Day` quedó con 24 unidades y vencimiento
-  `2027-12-31`.
+- El producto controlado `Producto Prueba Demo Day` quedó disponible y con vencimiento
+  `2027-12-31`; su stock aumenta dos unidades netas por corrida controlada.
 - 4 alertas: 1 lote vencido y 3 próximos a vencer.
 - 8 usuarios activos, todos ficticios y sin contraseñas expuestas por la API.
-- 37 eventos de auditoría persistidos después del recorrido web administrativo.
-- Las solicitudes históricas de la cuenta temporal conservaron el nombre de usuario aunque la
-  clave foránea quedó nula, demostrando el comportamiento `SET NULL`.
+- Los eventos de auditoría de las operaciones ejecutadas quedaron persistidos.
+- La cuenta temporal dejó de aparecer en listado y perfil y no pudo iniciar sesión después del
+  `DELETE`. Su solicitud histórica conservó el mismo `usuarioId`, demostrando que la baja lógica
+  evita datos huérfanos.
 
 ## Verificaciones técnicas
 

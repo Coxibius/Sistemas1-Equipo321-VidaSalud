@@ -14,6 +14,7 @@ public static class DatabaseSeeder
     {
         var usuariosDemostracion = UsuarioFactory.ObtenerUsuariosDemostracion();
         var usuariosExistentes = await context.Usuarios
+            .IgnoreQueryFilters()
             .ToDictionaryAsync(
                 usuario => usuario.NombreUsuario.ToLower(),
                 StringComparer.OrdinalIgnoreCase,
@@ -34,7 +35,9 @@ public static class DatabaseSeeder
                 continue;
             }
 
-            if (UsuarioFactory.CompletarPerfilExistente(usuarioExistente, datos))
+            // Una cuenta eliminada permanece reservada y no debe reaparecer por el seeder.
+            if (!usuarioExistente.Eliminado &&
+                UsuarioFactory.CompletarPerfilExistente(usuarioExistente, datos))
             {
                 perfilesCompletados++;
             }

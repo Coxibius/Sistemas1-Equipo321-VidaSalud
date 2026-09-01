@@ -79,6 +79,7 @@ package "Models" {
     +PasswordHash: string
     +FechaRegistro: DateTime
     +Activo: bool
+    +Eliminado: bool
   }
   class LogAuditoria {
     +IdLog: int

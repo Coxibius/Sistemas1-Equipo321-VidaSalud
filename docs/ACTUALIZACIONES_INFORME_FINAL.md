@@ -19,7 +19,7 @@ indica qué editar antes de exportar nuevamente el informe. No se modifica ni re
 ### 1. Resumen ejecutivo
 
 Agregar Dashboard, HU07, auditoría persistente y solicitudes de baja. Cambiar cualquier frase que
-presente esos elementos como mejoras futuras. Incluir el resultado técnico: 22 de 22
+presente esos elementos como mejoras futuras. Incluir el resultado técnico: 26 de 26
 verificaciones aprobadas, compilación sin errores y ocho usuarios ficticios activos.
 
 La afirmación de que se realizaron pruebas de usabilidad solo debe conservarse si se adjunta la
@@ -57,20 +57,22 @@ consultar datos propios, corregir nombre/correo, solicitar baja y resolución ad
 ### 11. Diseño y normalización de base de datos
 
 La lista vigente debe incluir siete tablas: `categoria`, `producto`, `lote`,
-`movimiento_inventario`, `usuario`, `solicitud_baja` y `log_auditoria`. Explicar que
-`solicitud_baja.id_usuario` utiliza `SET NULL` para conservar la evidencia histórica cuando una
-cuenta es eliminada.
+`movimiento_inventario`, `usuario`, `solicitud_baja` y `log_auditoria`. Explicar que la baja
+administrativa es lógica mediante `usuario.eliminado`: la cuenta se oculta, pero la fila y
+`solicitud_baja.id_usuario` se conservan. `SET NULL` queda como salvaguarda si una eliminación
+física excepcional se ejecuta fuera de la API.
 
 ### 12. Integridad y reglas de negocio
 
 Agregar las reglas demostrables: usuario único, roles restringidos, administrador único
-protegido, cuenta inactiva bloqueada, salida sin stock rechazada y lotes vencidos excluidos de
-salidas. La explicación exacta de FK, `RESTRICT`, `CASCADE` y `SET NULL` está en el diccionario de
+protegido, cuenta inactiva bloqueada, baja lógica sin datos huérfanos, salida sin stock rechazada
+y lotes vencidos excluidos de salidas. La explicación exacta de FK, `RESTRICT`, `CASCADE` y
+`SET NULL` está en el diccionario de
 datos.
 
 ### 14 a 16. Pruebas
 
-Agregar el smoke test reproducible de `scripts/smoke-test.ps1` y su resultado 22/22. Separar esta
+Agregar el smoke test reproducible de `scripts/smoke-test.ps1` y su resultado 26/26. Separar esta
 evidencia técnica de la prueba humana de usabilidad. No completar resultados de participantes por
 suposición.
 
@@ -148,7 +150,7 @@ porque ya están implementados. Reemplazarlos por:
 ### 29. Anexos
 
 Adjuntar únicamente evidencia final: enlace definitivo a GitHub, PRD, Árbol de Problemas, matriz
-de trazabilidad, UML final, diccionario de datos, migraciones, smoke test 22/22, prueba de
+de trazabilidad, UML final, diccionario de datos, migraciones, smoke test 26/26, prueba de
 usabilidad real y las capturas indicadas en `docs/CAPTURAS_DEMO_DAY.md`.
 
 ## Texto breve listo para la sección 20

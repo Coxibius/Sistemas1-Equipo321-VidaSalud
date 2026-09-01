@@ -69,8 +69,8 @@ y productos suficientes para los movimientos.
 - La categoría de un producto no puede eliminarse mientras esté relacionada (`RESTRICT`).
 - Los lotes se eliminan con su producto (`CASCADE`) según el modelo implementado.
 - Un producto con movimientos no puede eliminarse (`RESTRICT`).
-- Si se elimina una cuenta, una solicitud histórica conserva el nombre y deja su FK en nulo
-  (`SET NULL`).
+- El `DELETE` de usuarios realiza una baja lógica: oculta la cuenta y conserva su fila y FK
+  histórica. `SET NULL` queda como salvaguarda ante una eliminación física excepcional.
 
 ### Habeas Data
 
@@ -109,6 +109,6 @@ Los elementos marcados corresponden al estado técnico local. GitHub solo se con
 cuando el Pull Request esté fusionado en `main` y el enlace se haya comprobado en una ventana
 privada.
 
-Evidencia automatizada disponible: `testing/SMOKE_TEST_2026-09-01.md` registra 22 de 22
+Evidencia automatizada disponible: `testing/SMOKE_TEST_2026-09-01.md` registra 26 de 26
 verificaciones aprobadas. La casilla del teléfono debe marcarse únicamente después de completar
 el checklist físico de `testing/PRUEBA_MOVIL_2026-09-01.md` en el dispositivo del stand.

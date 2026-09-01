@@ -45,7 +45,7 @@ ni `obj`. Si aparece alguno, retirarlo del área de preparación antes del commi
 - **Título:** `feat: completar VidaSalud y preparar Demo Day`
 - **Resumen:** HU07, auditoría persistente, solicitudes de baja, datos demo, Dashboard,
   compatibilidad Expo, PRD, UML, SQL y evidencia de pruebas.
-- **Pruebas:** backend 0 errores, TypeScript 0 errores y smoke test 22/22.
+- **Pruebas:** backend 0 errores, TypeScript 0 errores y smoke test 26/26.
 
 Después de revisar el PR en GitHub, fusionarlo a `main` sin usar `push --force`.
 

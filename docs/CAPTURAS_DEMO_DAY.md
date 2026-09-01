@@ -27,7 +27,7 @@ la cadena de conexión de PostgreSQL.
 
 9. `09-usuarios-roles.png` — ocho usuarios y los tres roles.
 10. `10-solicitud-baja.png` — solicitud pendiente o resuelta con datos ficticios.
-11. `11-smoke-test.png` — terminal mostrando `TOTAL_PRUEBAS=22` y `TOTAL_OK=22`.
+11. `11-smoke-test.png` — terminal mostrando `TOTAL_PRUEBAS=26` y `TOTAL_OK=26`.
 12. `12-github-evidencia.png` — GitHub mostrando `PRD.md`, `docs/uml/final`, diccionario y
     migraciones.
 13. `13-celular-dashboard.jpg` — Expo Go ejecutando el Dashboard.
@@ -42,13 +42,29 @@ Si el docente solicita evidencia de contraseñas protegidas, ejecutar en pgAdmin
 SELECT nombre_usuario,
        rol,
        activo,
+       eliminado,
        LEFT(password_hash, 24) || '...' AS hash_muestra
 FROM usuario
+WHERE eliminado = false
 ORDER BY nombre_usuario;
 ```
 
 La captura debe mostrar que los valores son hashes distintos, no contraseñas legibles. Nunca
 capturar `appsettings.Development.json` ni la contraseña local de PostgreSQL.
+
+Para demostrar la baja lógica y la conservación de relaciones sin exponer contraseñas:
+
+```sql
+SELECT u.id_usuario,
+       u.nombre_usuario,
+       u.activo,
+       u.eliminado,
+       s.id_solicitud
+FROM usuario u
+LEFT JOIN solicitud_baja s ON s.id_usuario = u.id_usuario
+WHERE u.eliminado = true
+ORDER BY u.id_usuario DESC;
+```
 
 ## Captura segura de auditoría
 
@@ -63,7 +79,7 @@ LIMIT 10;
 
 1. Web: Login, Dashboard, Productos, Inventario, Vencimientos, Mi perfil y Administración.
 2. PostgreSQL: tablas, hash parcial y log.
-3. Terminal: smoke test 22/22.
+3. Terminal: smoke test 26/26.
 4. GitHub: documentación final en la rama fusionada.
 5. Celular: Dashboard y formulario con teclado/barra de Android.
 

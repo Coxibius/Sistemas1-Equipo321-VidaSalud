@@ -2,12 +2,15 @@ import axios from 'axios';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
     ActivityIndicator,
+    KeyboardAvoidingView,
+    Platform,
     ScrollView,
     StyleSheet,
     Text,
     TextInput,
     TouchableOpacity,
     View,
+    useWindowDimensions,
 } from 'react-native';
 import { ProductoService } from '../services/productoService';
 import { TipoMovimiento } from '../types/movimiento';
@@ -27,6 +30,8 @@ export const RegistrarMovimientoScreen: React.FC<Props> = ({ usuario }) => {
     const [guardando, setGuardando] = useState(false);
     const [mensaje, setMensaje] = useState<string | null>(null);
     const [esError, setEsError] = useState(false);
+    const { width } = useWindowDimensions();
+    const esMovil = width < 700;
 
     const cargarProductos = useCallback(async () => {
         try {
@@ -94,7 +99,15 @@ export const RegistrarMovimientoScreen: React.FC<Props> = ({ usuario }) => {
     };
 
     return (
-        <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+        <KeyboardAvoidingView
+            style={styles.page}
+            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        >
+        <ScrollView
+            contentContainerStyle={[styles.container, esMovil && styles.containerMobile]}
+            keyboardShouldPersistTaps="handled"
+            keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
+        >
             <View style={styles.header}>
                 <View>
                     <Text style={styles.eyebrow}>CONTROL DE STOCK</Text>
@@ -202,20 +215,28 @@ export const RegistrarMovimientoScreen: React.FC<Props> = ({ usuario }) => {
                 </TouchableOpacity>
             </View>
         </ScrollView>
+        </KeyboardAvoidingView>
     );
 };
 
 const styles = StyleSheet.create({
+    page: {
+        flex: 1,
+    },
     container: {
         flexGrow: 1,
         backgroundColor: '#F8FAFC',
         padding: 32,
+    },
+    containerMobile: {
+        padding: 16,
     },
     header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'flex-start',
         gap: 20,
+        flexWrap: 'wrap',
         marginBottom: 24,
     },
     eyebrow: {

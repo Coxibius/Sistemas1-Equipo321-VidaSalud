@@ -1,3 +1,6 @@
+-- DOCUMENTO HISTÓRICO DE DISEÑO (Actividad 7).
+-- Incluye entidades propuestas fuera del MVP, como PROVEEDOR y ALERTA.
+-- El esquema ejecutable final está en ESQUEMA_IMPLEMENTADO.sql y en las migraciones EF.
 -- =====================================================================
 -- Sistema de Gestión de Inventario - Farmacia VidaSalud
 -- Actividad 7: Diseño de la Arquitectura de Datos y Normalización (3FN)

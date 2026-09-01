@@ -1,5 +1,17 @@
+import axios from 'axios';
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView } from 'react-native';
+import {
+    Alert,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
+    useWindowDimensions,
+} from 'react-native';
 import { ProductoService } from '../services/productoService';
 import { obtenerEtiquetaRol, UsuarioSesion } from '../types/usuario';
 
@@ -17,6 +29,8 @@ export const RegistrarProductoScreen: React.FC<Props> = ({ alCancelar, alGuardar
     const [cantidad, setCantidad] = useState('');
     const [fechaVencimiento, setFechaVencimiento] = useState('');
     const [cargando, setCargando] = useState(false);
+    const { width } = useWindowDimensions();
+    const esMovil = width < 700;
 
     // Función que se ejecuta al presionar "Guardar"
     const manejarGuardar = async () => {
@@ -48,21 +62,34 @@ export const RegistrarProductoScreen: React.FC<Props> = ({ alCancelar, alGuardar
                 precio: precioNum,
                 cantidad: cantidadNum,
                 fechaVencimiento,
+                responsable: usuario.nombre,
             });
 
             Alert.alert('¡Éxito!', 'Producto registrado correctamente.');
             alGuardarExitoso();
         } catch (error) {
-            // Como aún no tenemos levantado el backend .NET, dejamos un mensaje claro
-            Alert.alert('Información', 'Producto guardado en modo local (sin backend conectado).');
-            alGuardarExitoso();
+            const mensajeApi = axios.isAxiosError(error)
+                ? error.response?.data?.message
+                : undefined;
+            Alert.alert(
+                'No se pudo registrar',
+                mensajeApi ?? 'Verifica la conexión con la API e intenta nuevamente.',
+            );
         } finally {
             setCargando(false);
         }
     };
 
     return (
-        <ScrollView contentContainerStyle={styles.container}>
+        <KeyboardAvoidingView
+            style={styles.page}
+            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        >
+        <ScrollView
+            contentContainerStyle={[styles.container, esMovil && styles.containerMobile]}
+            keyboardShouldPersistTaps="handled"
+            keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
+        >
             {/* Cabecera superior con Usuario */}
             <View style={styles.topHeader}>
                 <Text style={styles.userBadge}>
@@ -71,7 +98,7 @@ export const RegistrarProductoScreen: React.FC<Props> = ({ alCancelar, alGuardar
             </View>
 
             {/* Tarjeta principal del Formulario */}
-            <View style={styles.card}>
+            <View style={[styles.card, esMovil && styles.cardMobile]}>
                 <View style={styles.cardHeader}>
                     <Text style={styles.cardTitle}>REGISTRAR NUEVO PRODUCTO</Text>
                     <Text style={styles.cardSubtitle}>Ingresa los datos para incorporar el producto al inventario</Text>
@@ -102,8 +129,8 @@ export const RegistrarProductoScreen: React.FC<Props> = ({ alCancelar, alGuardar
                 </View>
 
                 {/* Fila: Precio y Cantidad juntos */}
-                <View style={styles.row}>
-                    <View style={[styles.formGroup, { flex: 1, marginRight: 12 }]}>
+                <View style={[styles.row, esMovil && styles.rowMobile]}>
+                    <View style={[styles.formGroup, styles.rowField]}>
                         <Text style={styles.label}>Precio (Bs) *</Text>
                         <TextInput
                             style={styles.input}
@@ -115,7 +142,7 @@ export const RegistrarProductoScreen: React.FC<Props> = ({ alCancelar, alGuardar
                         />
                     </View>
 
-                    <View style={[styles.formGroup, { flex: 1 }]}>
+                    <View style={[styles.formGroup, styles.rowField]}>
                         <Text style={styles.label}>Cantidad / Stock Inicial *</Text>
                         <TextInput
                             style={styles.input}
@@ -141,7 +168,7 @@ export const RegistrarProductoScreen: React.FC<Props> = ({ alCancelar, alGuardar
                 </View>
 
                 {/* Botones de Acción (Cancelar y Guardar) */}
-                <View style={styles.buttonRow}>
+                <View style={[styles.buttonRow, esMovil && styles.buttonRowMobile]}>
                     <TouchableOpacity style={styles.cancelButton} onPress={alCancelar}>
                         <Text style={styles.cancelButtonText}>Cancelar</Text>
                     </TouchableOpacity>
@@ -158,14 +185,21 @@ export const RegistrarProductoScreen: React.FC<Props> = ({ alCancelar, alGuardar
                 </View>
             </View>
         </ScrollView>
+        </KeyboardAvoidingView>
     );
 };
 
 const styles = StyleSheet.create({
+    page: {
+        flex: 1,
+    },
     container: {
         flexGrow: 1,
         backgroundColor: '#F8FAFC', // Fondo gris clínico
         padding: 32,
+    },
+    containerMobile: {
+        padding: 16,
     },
     topHeader: {
         flexDirection: 'row',
@@ -193,6 +227,9 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
         width: '100%',
     },
+    cardMobile: {
+        padding: 20,
+    },
     cardHeader: {
         marginBottom: 24,
         borderBottomWidth: 1,
@@ -214,6 +251,14 @@ const styles = StyleSheet.create({
     },
     row: {
         flexDirection: 'row',
+        gap: 12,
+    },
+    rowMobile: {
+        flexWrap: 'wrap',
+    },
+    rowField: {
+        flex: 1,
+        minWidth: 180,
     },
     label: {
         fontSize: 14,
@@ -236,6 +281,9 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-end',
         gap: 12,
         marginTop: 24,
+    },
+    buttonRowMobile: {
+        flexWrap: 'wrap-reverse',
     },
     cancelButton: {
         backgroundColor: '#F1F5F9',

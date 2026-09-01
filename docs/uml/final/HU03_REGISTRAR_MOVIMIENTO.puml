@@ -1,0 +1,24 @@
+@startuml HU03_Registrar_Movimiento
+actor Usuario
+participant RegistrarMovimientoScreen
+participant MovimientosController
+participant MovimientoService
+participant VidaSaludDbContext
+participant AuditoriaService
+
+Usuario -> RegistrarMovimientoScreen: selecciona producto, tipo y cantidad
+RegistrarMovimientoScreen -> MovimientosController: POST /api/movimientos
+MovimientosController -> MovimientoService: RegistrarMovimientoAsync(dto)
+MovimientoService -> VidaSaludDbContext: carga producto y lotes
+alt SALIDA
+  MovimientoService -> MovimientoService: descarta vencidos y valida stock
+  MovimientoService -> VidaSaludDbContext: descuenta por FEFO
+else ENTRADA
+  MovimientoService -> VidaSaludDbContext: incrementa lote
+end
+MovimientoService -> VidaSaludDbContext: INSERT movimiento_inventario
+MovimientoService -> AuditoriaService: REGISTRAR_ENTRADA/SALIDA
+AuditoriaService -> VidaSaludDbContext: INSERT log_auditoria
+MovimientoService --> MovimientosController: MovimientoResponseDto
+MovimientosController --> RegistrarMovimientoScreen: 201 Created
+@enduml

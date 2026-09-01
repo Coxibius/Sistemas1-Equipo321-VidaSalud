@@ -5,6 +5,7 @@ export interface Producto {
     precio: number;
     cantidad: number;
     fechaVencimiento: string;
+    responsable?: string;
 }
 
 export interface ProductoResponse extends Producto {

@@ -6,6 +6,7 @@ import {
     Text,
     TouchableOpacity,
     View,
+    useWindowDimensions,
 } from 'react-native';
 import { ProductoService } from '../services/productoService';
 import { AlertaVencimiento } from '../types/vencimiento';
@@ -14,6 +15,8 @@ export const VencimientosScreen: React.FC = () => {
     const [alertas, setAlertas] = useState<AlertaVencimiento[]>([]);
     const [cargando, setCargando] = useState(true);
     const [mensajeError, setMensajeError] = useState<string | null>(null);
+    const { width } = useWindowDimensions();
+    const esMovil = width < 700;
 
     const cargarAlertas = useCallback(async () => {
         try {
@@ -38,7 +41,7 @@ export const VencimientosScreen: React.FC = () => {
     }), [alertas]);
 
     return (
-        <ScrollView contentContainerStyle={styles.container}>
+        <ScrollView contentContainerStyle={[styles.container, esMovil && styles.containerMobile]}>
             <View style={styles.header}>
                 <View>
                     <Text style={styles.eyebrow}>CONTROL PREVENTIVO</Text>
@@ -130,11 +133,15 @@ const styles = StyleSheet.create({
         backgroundColor: '#F8FAFC',
         padding: 32,
     },
+    containerMobile: {
+        padding: 16,
+    },
     header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'flex-start',
         gap: 20,
+        flexWrap: 'wrap',
         marginBottom: 22,
     },
     eyebrow: {

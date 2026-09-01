@@ -10,11 +10,16 @@ public class ProductoService : IProductoService
 {
     private readonly VidaSaludDbContext _context;
     private readonly ILogger<ProductoService> _logger;
+    private readonly IAuditoriaService _auditoria;
 
-    public ProductoService(VidaSaludDbContext context, ILogger<ProductoService> logger)
+    public ProductoService(
+        VidaSaludDbContext context,
+        ILogger<ProductoService> logger,
+        IAuditoriaService auditoria)
     {
         _context = context;
         _logger = logger;
+        _auditoria = auditoria;
     }
 
     public async Task<ProductoResponseDto> RegistrarProductoAsync(RegistrarProductoDto dto)
@@ -89,6 +94,13 @@ public class ProductoService : IProductoService
 
         _logger.LogInformation("Producto '{Nombre}' con Id {Id} y Lote {LoteId} registrado exitosamente.",
             nuevoProducto.Nombre, nuevoProducto.IdProducto, nuevoLote.IdLote);
+
+        await _auditoria.RegistrarAsync(
+            dto.Responsable,
+            "CREAR_PRODUCTO",
+            "PRODUCTO",
+            nuevoProducto.IdProducto,
+            detalle: $"Producto {nuevoProducto.Nombre} y lote inicial registrados.");
 
         // 5. Retorno de DTO de respuesta (EstadoVencimiento se evalúa dinámicamente desde Lote)
         return new ProductoResponseDto

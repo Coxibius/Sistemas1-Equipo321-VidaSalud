@@ -108,3 +108,32 @@ public class InvalidCredentialsException : Exception
     {
     }
 }
+
+public class AccountInactiveException : Exception
+{
+    public string Code => "ACCOUNT_INACTIVE";
+
+    public AccountInactiveException() : base("La cuenta está inactiva. Contacta al administrador.")
+    {
+    }
+}
+
+public class PendingDeactivationRequestException : Exception
+{
+    public string Code => "PENDING_DEACTIVATION_REQUEST";
+
+    public PendingDeactivationRequestException()
+        : base("Ya existe una solicitud de baja pendiente para esta cuenta.")
+    {
+    }
+}
+
+public class DeactivationRequestNotFoundException : Exception
+{
+    public string Code => "DEACTIVATION_REQUEST_NOT_FOUND";
+
+    public DeactivationRequestNotFoundException()
+        : base("La solicitud de baja no existe.")
+    {
+    }
+}

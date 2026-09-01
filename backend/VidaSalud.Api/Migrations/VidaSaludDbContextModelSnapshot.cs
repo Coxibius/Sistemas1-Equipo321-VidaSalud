@@ -87,6 +87,63 @@ namespace VidaSalud.Api.Migrations
                         });
                 });
 
+            modelBuilder.Entity("VidaSalud.Api.Models.LogAuditoria", b =>
+                {
+                    b.Property<int>("IdLog")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id_log");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("IdLog"));
+
+                    b.Property<string>("Accion")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("accion");
+
+                    b.Property<string>("Actor")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)")
+                        .HasColumnName("actor");
+
+                    b.Property<string>("Detalle")
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("detalle");
+
+                    b.Property<string>("Entidad")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("entidad");
+
+                    b.Property<int?>("EntidadId")
+                        .HasColumnType("integer")
+                        .HasColumnName("entidad_id");
+
+                    b.Property<DateTime>("FechaUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("fecha_utc");
+
+                    b.Property<string>("Resultado")
+                        .IsRequired()
+                        .HasMaxLength(15)
+                        .HasColumnType("character varying(15)")
+                        .HasColumnName("resultado");
+
+                    b.HasKey("IdLog");
+
+                    b.HasIndex("FechaUtc")
+                        .HasDatabaseName("idx_log_auditoria_fecha");
+
+                    b.ToTable("log_auditoria", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_log_auditoria_resultado", "resultado IN ('EXITOSO', 'FALLIDO', 'RECHAZADO')");
+                        });
+                });
+
             modelBuilder.Entity("VidaSalud.Api.Models.Lote", b =>
                 {
                     b.Property<int>("IdLote")
@@ -120,7 +177,10 @@ namespace VidaSalud.Api.Migrations
                     b.HasIndex("IdProducto")
                         .HasDatabaseName("idx_lote_producto");
 
-                    b.ToTable("lote", (string)null);
+                    b.ToTable("lote", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_lote_cantidad", "cantidad >= 0");
+                        });
                 });
 
             modelBuilder.Entity("VidaSalud.Api.Models.MovimientoInventario", b =>
@@ -167,7 +227,14 @@ namespace VidaSalud.Api.Migrations
                     b.HasIndex("IdProducto")
                         .HasDatabaseName("idx_mov_producto");
 
-                    b.ToTable("movimiento_inventario", (string)null);
+                    b.ToTable("movimiento_inventario", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_movimiento_cantidad", "cantidad > 0");
+
+                            t.HasCheckConstraint("ck_movimiento_estado", "estado_movimiento IN ('REGISTRADO')");
+
+                            t.HasCheckConstraint("ck_movimiento_tipo", "tipo_movimiento IN ('ENTRADA', 'SALIDA')");
+                        });
                 });
 
             modelBuilder.Entity("VidaSalud.Api.Models.Producto", b =>
@@ -205,7 +272,69 @@ namespace VidaSalud.Api.Migrations
                         .IsUnique()
                         .HasDatabaseName("idx_producto_nombre");
 
-                    b.ToTable("producto", (string)null);
+                    b.ToTable("producto", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_producto_precio", "precio >= 0");
+                        });
+                });
+
+            modelBuilder.Entity("VidaSalud.Api.Models.SolicitudBaja", b =>
+                {
+                    b.Property<int>("IdSolicitud")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id_solicitud");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("IdSolicitud"));
+
+                    b.Property<string>("Estado")
+                        .IsRequired()
+                        .HasMaxLength(15)
+                        .HasColumnType("character varying(15)")
+                        .HasColumnName("estado");
+
+                    b.Property<DateTime?>("FechaResolucion")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("fecha_resolucion");
+
+                    b.Property<DateTime>("FechaSolicitud")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("fecha_solicitud");
+
+                    b.Property<int?>("IdUsuario")
+                        .HasColumnType("integer")
+                        .HasColumnName("id_usuario");
+
+                    b.Property<string>("Motivo")
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("motivo");
+
+                    b.Property<string>("NombreUsuario")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("nombre_usuario");
+
+                    b.Property<string>("ResueltaPor")
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)")
+                        .HasColumnName("resuelta_por");
+
+                    b.HasKey("IdSolicitud");
+
+                    b.HasIndex("Estado")
+                        .HasDatabaseName("idx_solicitud_baja_estado");
+
+                    b.HasIndex("IdUsuario")
+                        .IsUnique()
+                        .HasDatabaseName("idx_solicitud_baja_usuario_pendiente")
+                        .HasFilter("estado = 'PENDIENTE'");
+
+                    b.ToTable("solicitud_baja", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_solicitud_baja_estado", "estado IN ('PENDIENTE', 'APROBADA', 'RECHAZADA')");
+                        });
                 });
 
             modelBuilder.Entity("VidaSalud.Api.Models.Usuario", b =>
@@ -216,6 +345,12 @@ namespace VidaSalud.Api.Migrations
                         .HasColumnName("id_usuario");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("IdUsuario"));
+
+                    b.Property<bool>("Activo")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasColumnName("activo");
 
                     b.Property<string>("Email")
                         .HasMaxLength(100)
@@ -300,6 +435,17 @@ namespace VidaSalud.Api.Migrations
                         .HasConstraintName("fk_producto_categoria");
 
                     b.Navigation("Categoria");
+                });
+
+            modelBuilder.Entity("VidaSalud.Api.Models.SolicitudBaja", b =>
+                {
+                    b.HasOne("VidaSalud.Api.Models.Usuario", "Usuario")
+                        .WithMany()
+                        .HasForeignKey("IdUsuario")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_solicitud_baja_usuario");
+
+                    b.Navigation("Usuario");
                 });
 
             modelBuilder.Entity("VidaSalud.Api.Models.Categoria", b =>

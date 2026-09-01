@@ -1,15 +1,19 @@
 import axios from 'axios';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
+    Keyboard,
     KeyboardAvoidingView,
     Platform,
+    ScrollView,
     StyleSheet,
     Text,
     TextInput,
     TouchableOpacity,
     View,
+    useWindowDimensions,
 } from 'react-native';
 import { AutenticacionService } from '../services/autenticacionService';
+import { API_BASE_URL } from '../services/api';
 import { UsuarioSesion } from '../types/usuario';
 
 interface Props {
@@ -21,8 +25,13 @@ export const LoginScreen: React.FC<Props> = ({ alIniciarSesion }) => {
     const [contrasena, setContrasena] = useState('');
     const [mensajeError, setMensajeError] = useState<string | null>(null);
     const [cargando, setCargando] = useState(false);
+    const contrasenaRef = useRef<TextInput>(null);
+    const { width } = useWindowDimensions();
+    const esPantallaCompacta = width < 600;
 
     const iniciarSesion = async () => {
+        Keyboard.dismiss();
+
         if (!usuario.trim() || !contrasena) {
             setMensajeError('Completa el usuario y la contraseña.');
             return;
@@ -34,10 +43,16 @@ export const LoginScreen: React.FC<Props> = ({ alIniciarSesion }) => {
             const sesion = await AutenticacionService.iniciarSesion(usuario, contrasena);
             alIniciarSesion(sesion);
         } catch (error) {
-            const mensajeApi = axios.isAxiosError(error)
-                ? error.response?.data?.message
-                : undefined;
-            setMensajeError(mensajeApi ?? 'No fue posible iniciar sesión. Verifica que la API esté disponible.');
+            if (axios.isAxiosError(error) && !error.response) {
+                setMensajeError(
+                    `No se pudo conectar con ${API_BASE_URL}. Confirma que la API esté encendida y que ambos equipos usen la misma red.`,
+                );
+            } else {
+                const mensajeApi = axios.isAxiosError(error)
+                    ? error.response?.data?.message
+                    : undefined;
+                setMensajeError(mensajeApi ?? 'No fue posible iniciar sesión. Intenta nuevamente.');
+            }
         } finally {
             setCargando(false);
         }
@@ -46,12 +61,22 @@ export const LoginScreen: React.FC<Props> = ({ alIniciarSesion }) => {
     return (
         <KeyboardAvoidingView
             style={styles.page}
-            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         >
             <View style={styles.decorativeCircleTop} />
             <View style={styles.decorativeCircleBottom} />
 
-            <View style={styles.loginCard}>
+            <ScrollView
+                style={styles.scroll}
+                contentContainerStyle={[
+                    styles.scrollContent,
+                    esPantallaCompacta && styles.scrollContentCompact,
+                ]}
+                keyboardShouldPersistTaps="handled"
+                keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
+                showsVerticalScrollIndicator={false}
+            >
+            <View style={[styles.loginCard, esPantallaCompacta && styles.loginCardCompact]}>
                 <View style={styles.brandIcon}>
                     <Text style={styles.brandIconText}>+</Text>
                 </View>
@@ -64,6 +89,7 @@ export const LoginScreen: React.FC<Props> = ({ alIniciarSesion }) => {
                     <View>
                         <Text style={styles.label}>Usuario</Text>
                         <TextInput
+                            accessibilityLabel="Usuario"
                             style={styles.input}
                             value={usuario}
                             onChangeText={setUsuario}
@@ -72,6 +98,7 @@ export const LoginScreen: React.FC<Props> = ({ alIniciarSesion }) => {
                             autoCapitalize="none"
                             autoCorrect={false}
                             returnKeyType="next"
+                            onSubmitEditing={() => contrasenaRef.current?.focus()}
                             maxLength={30}
                         />
                     </View>
@@ -79,6 +106,8 @@ export const LoginScreen: React.FC<Props> = ({ alIniciarSesion }) => {
                     <View>
                         <Text style={styles.label}>Contraseña</Text>
                         <TextInput
+                            ref={contrasenaRef}
+                            accessibilityLabel="Contraseña"
                             style={styles.input}
                             value={contrasena}
                             onChangeText={setContrasena}
@@ -87,6 +116,7 @@ export const LoginScreen: React.FC<Props> = ({ alIniciarSesion }) => {
                             secureTextEntry
                             onSubmitEditing={iniciarSesion}
                             returnKeyType="done"
+                            blurOnSubmit
                             maxLength={40}
                         />
                     </View>
@@ -113,6 +143,7 @@ export const LoginScreen: React.FC<Props> = ({ alIniciarSesion }) => {
 
                 <Text style={styles.disclaimer}>Acceso simulado para fines académicos.</Text>
             </View>
+            </ScrollView>
         </KeyboardAvoidingView>
     );
 };
@@ -120,12 +151,23 @@ export const LoginScreen: React.FC<Props> = ({ alIniciarSesion }) => {
 const styles = StyleSheet.create({
     page: {
         flex: 1,
-        minHeight: 620,
         backgroundColor: '#0F172A',
+        overflow: 'hidden',
+    },
+    scroll: {
+        flex: 1,
+        width: '100%',
+    },
+    scrollContent: {
+        flexGrow: 1,
         alignItems: 'center',
         justifyContent: 'center',
-        overflow: 'hidden',
         padding: 24,
+    },
+    scrollContentCompact: {
+        justifyContent: 'flex-start',
+        paddingHorizontal: 14,
+        paddingVertical: 18,
     },
     decorativeCircleTop: {
         position: 'absolute',
@@ -160,6 +202,11 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.22,
         shadowRadius: 24,
         elevation: 8,
+    },
+    loginCardCompact: {
+        borderRadius: 15,
+        paddingHorizontal: 22,
+        paddingVertical: 24,
     },
     brandIcon: {
         width: 54,

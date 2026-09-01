@@ -8,14 +8,14 @@
     "status": "DONE"
   },
   "business_rules": [
-    { "id": "BR01", "description": "Solo se aceptan las cuentas de demostración de Víctor y María." },
+    { "id": "BR01", "description": "Solo se aceptan usuarios activos registrados en PostgreSQL con credenciales válidas." },
     { "id": "BR02", "description": "La sesión existe únicamente mientras la aplicación permanece abierta." },
     { "id": "BR03", "description": "El usuario autenticado debe mostrarse como responsable del sistema." }
   ],
   "acceptance_criteria": [
     {
       "id": "AC01",
-      "given": "el usuario ingresa credenciales válidas de Víctor o María",
+      "given": "el usuario ingresa credenciales válidas de una cuenta activa",
       "when": "selecciona Iniciar sesión",
       "then": "el sistema permite el acceso y muestra su nombre"
     },

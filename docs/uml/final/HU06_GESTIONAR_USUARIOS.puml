@@ -1,0 +1,25 @@
+@startuml HU06_Gestionar_Usuarios
+actor Administrador
+participant GestionUsuariosScreen
+participant UsuariosController
+participant UsuarioService
+participant PasswordHasher
+participant AuditoriaService
+database PostgreSQL
+
+Administrador -> GestionUsuariosScreen: abre administración
+GestionUsuariosScreen -> UsuariosController: GET /api/usuarios
+UsuariosController -> UsuarioService: ListarAsync()
+UsuarioService -> PostgreSQL: SELECT usuarios sin password_hash en DTO
+PostgreSQL --> GestionUsuariosScreen: lista de usuarios
+
+Administrador -> GestionUsuariosScreen: registra o edita una cuenta
+GestionUsuariosScreen -> UsuariosController: POST o PUT /api/usuarios
+UsuariosController -> UsuarioService: CrearAsync() / ActualizarAsync()
+UsuarioService -> PostgreSQL: valida usuario, email y administrador único
+UsuarioService -> PasswordHasher: HashPassword() si corresponde
+UsuarioService -> PostgreSQL: INSERT o UPDATE usuario
+UsuarioService -> AuditoriaService: CREAR_USUARIO / EDITAR_USUARIO
+AuditoriaService -> PostgreSQL: INSERT log_auditoria
+UsuarioService --> GestionUsuariosScreen: UsuarioResponseDto sin hash
+@enduml

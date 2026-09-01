@@ -1,0 +1,34 @@
+@startuml Arbol_Problemas_VidaSalud
+top to bottom direction
+skinparam shadowing false
+skinparam rectangle {
+  RoundCorner 18
+}
+
+rectangle "EFECTOS" as efectos #FFF3E0
+rectangle "Stock poco confiable\ny decisiones tardías" as e1 #FFE0B2
+rectangle "Duplicados y mayor tiempo\npara encontrar productos" as e2 #FFE0B2
+rectangle "Pérdidas por vencimiento\ny baja trazabilidad" as e3 #FFE0B2
+
+rectangle "PROBLEMA CENTRAL\nInventario farmacéutico poco confiable\ny difícil de controlar" as problema #FFD6D6
+
+rectangle "Registro manual\ny datos dispersos\nHU01–HU02" as c1 #D9EEFF
+rectangle "Movimientos sin control\nni responsable visible\nHU03–HU05" as c2 #D9EEFF
+rectangle "Ausencia de alertas\npreventivas\nHU04" as c3 #D9EEFF
+rectangle "Accesos y datos personales\nsin gobierno ni evidencia\nHU06–HU07 + auditoría" as c4 #D9EEFF
+
+efectos -[hidden]-> e2
+problema --> e1
+problema --> e2
+problema --> e3
+c1 --> problema
+c2 --> problema
+c3 --> problema
+c4 --> problema
+
+note bottom of problema
+  VidaSalud responde mediante digitalización,
+  integridad relacional, alertas y trazabilidad.
+  Alineación principal: ODS 9.
+end note
+@enduml

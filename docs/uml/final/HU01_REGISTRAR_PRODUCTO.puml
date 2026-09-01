@@ -1,0 +1,20 @@
+@startuml HU01_Registrar_Producto
+actor Encargado
+participant RegistrarProductoScreen
+participant ProductosController
+participant ProductoService
+participant VidaSaludDbContext
+participant AuditoriaService
+
+Encargado -> RegistrarProductoScreen: completa producto y lote
+RegistrarProductoScreen -> ProductosController: POST /api/productos
+ProductosController -> ProductoService: RegistrarProductoAsync(dto)
+ProductoService -> VidaSaludDbContext: valida nombre y categoría
+ProductoService -> VidaSaludDbContext: agrega Producto + Lote
+VidaSaludDbContext --> ProductoService: IDs persistidos
+ProductoService -> AuditoriaService: CREAR_PRODUCTO
+AuditoriaService -> VidaSaludDbContext: INSERT log_auditoria
+ProductoService --> ProductosController: ProductoResponseDto
+ProductosController --> RegistrarProductoScreen: 201 Created
+RegistrarProductoScreen --> Encargado: confirmación
+@enduml

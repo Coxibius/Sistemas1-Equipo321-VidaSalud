@@ -1,0 +1,18 @@
+@startuml HU02_Consultar_Productos
+actor Usuario
+participant ConsultarProductosScreen
+participant ProductosController
+participant ProductoService
+participant VidaSaludDbContext
+
+Usuario -> ConsultarProductosScreen: escribe criterio opcional
+ConsultarProductosScreen -> ProductosController: GET /api/productos?search={texto}
+ProductosController -> ProductoService: BuscarProductosAsync(criterio)
+ProductoService -> ProductoService: valida longitud y normaliza texto
+ProductoService -> VidaSaludDbContext: consulta Producto + Categoria + Lotes
+VidaSaludDbContext --> ProductoService: entidades coincidentes
+ProductoService -> ProductoService: calcula stock y lote más próximo
+ProductoService --> ProductosController: lista ProductoResponseDto
+ProductosController --> ConsultarProductosScreen: 200 OK
+ConsultarProductosScreen --> Usuario: listado o Sin resultados
+@enduml

@@ -1,0 +1,27 @@
+@startuml HU05_Iniciar_Sesion
+actor Usuario
+participant LoginScreen
+participant AuthController
+participant UsuarioService
+participant PasswordHasher
+participant AuditoriaService
+database PostgreSQL
+
+Usuario -> LoginScreen: ingresa usuario y contraseña
+LoginScreen -> AuthController: POST /api/auth/login
+AuthController -> UsuarioService: IniciarSesionAsync(dto)
+UsuarioService -> PostgreSQL: busca nombre_usuario
+PostgreSQL --> UsuarioService: cuenta y password_hash
+UsuarioService -> UsuarioService: verifica cuenta activa
+UsuarioService -> PasswordHasher: VerifyHashedPassword()
+alt credenciales válidas
+  PasswordHasher --> UsuarioService: Success
+  UsuarioService -> AuditoriaService: INICIAR_SESION EXITOSO
+  AuditoriaService -> PostgreSQL: INSERT log_auditoria
+  UsuarioService --> AuthController: UsuarioResponseDto sin hash
+  AuthController --> LoginScreen: 200 OK
+else credenciales inválidas o cuenta inactiva
+  UsuarioService -> AuditoriaService: INICIAR_SESION FALLIDO/RECHAZADO
+  AuthController --> LoginScreen: 401 o 403
+end
+@enduml

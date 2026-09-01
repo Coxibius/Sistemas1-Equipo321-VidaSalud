@@ -1,0 +1,141 @@
+@startuml VidaSalud_Clases_Final
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+
+package "Controllers" {
+  class ProductosController
+  class MovimientosController
+  class VencimientosController
+  class AuthController
+  class UsuariosController
+  class AuditoriaController
+  class SolicitudesBajaController
+}
+
+package "Services" {
+  interface IProductoService
+  interface IMovimientoService
+  interface IVencimientoService
+  interface IUsuarioService
+  interface IAuditoriaService
+  interface ISolicitudBajaService
+  class ProductoService
+  class MovimientoService
+  class VencimientoService
+  class UsuarioService
+  class AuditoriaService
+  class SolicitudBajaService
+}
+
+package "Data" {
+  class VidaSaludDbContext {
+    +Categorias
+    +Productos
+    +Lotes
+    +MovimientosInventario
+    +Usuarios
+    +LogsAuditoria
+    +SolicitudesBaja
+  }
+  class DatabaseSeeder
+  class ProductoFactory
+  class UsuarioFactory
+}
+
+package "Models" {
+  class Categoria {
+    +IdCategoria: int
+    +NombreCategoria: string
+  }
+  class Producto {
+    +IdProducto: int
+    +Nombre: string
+    +IdCategoria: int
+    +Precio: decimal
+    +FechaCreacion: DateOnly
+  }
+  class Lote {
+    +IdLote: int
+    +IdProducto: int
+    +Cantidad: int
+    +FechaIngreso: DateOnly
+    +FechaVencimiento: DateOnly
+  }
+  class MovimientoInventario {
+    +IdMovimiento: int
+    +IdProducto: int
+    +TipoMovimiento: string
+    +Cantidad: int
+    +Fecha: DateTime
+    +EstadoMovimiento: string
+    +Responsable: string
+  }
+  class Usuario {
+    +IdUsuario: int
+    +Nombre: string
+    +NombreUsuario: string
+    +Email: string?
+    +Rol: string
+    +PasswordHash: string
+    +FechaRegistro: DateTime
+    +Activo: bool
+  }
+  class LogAuditoria {
+    +IdLog: int
+    +Actor: string
+    +Accion: string
+    +Entidad: string
+    +EntidadId: int?
+    +FechaUtc: DateTime
+    +Resultado: string
+    +Detalle: string?
+  }
+  class SolicitudBaja {
+    +IdSolicitud: int
+    +IdUsuario: int?
+    +NombreUsuario: string
+    +Motivo: string?
+    +Estado: string
+    +FechaSolicitud: DateTime
+    +FechaResolucion: DateTime?
+    +ResueltaPor: string?
+  }
+}
+
+ProductosController --> IProductoService
+MovimientosController --> IMovimientoService
+VencimientosController --> IVencimientoService
+AuthController --> IUsuarioService
+UsuariosController --> IUsuarioService
+AuditoriaController --> IAuditoriaService
+SolicitudesBajaController --> ISolicitudBajaService
+
+IProductoService <|.. ProductoService
+IMovimientoService <|.. MovimientoService
+IVencimientoService <|.. VencimientoService
+IUsuarioService <|.. UsuarioService
+IAuditoriaService <|.. AuditoriaService
+ISolicitudBajaService <|.. SolicitudBajaService
+
+ProductoService --> VidaSaludDbContext
+MovimientoService --> VidaSaludDbContext
+VencimientoService --> VidaSaludDbContext
+UsuarioService --> VidaSaludDbContext
+AuditoriaService --> VidaSaludDbContext
+SolicitudBajaService --> VidaSaludDbContext
+ProductoService --> IAuditoriaService
+MovimientoService --> IAuditoriaService
+UsuarioService --> IAuditoriaService
+SolicitudBajaService --> IAuditoriaService
+
+DatabaseSeeder --> VidaSaludDbContext
+DatabaseSeeder --> ProductoFactory
+DatabaseSeeder --> UsuarioFactory
+ProductoFactory --> Producto
+UsuarioFactory --> Usuario
+
+Categoria "1" -- "0..*" Producto
+Producto "1" -- "0..*" Lote
+Producto "1" -- "0..*" MovimientoInventario
+Usuario "0..1" -- "0..*" SolicitudBaja
+@enduml

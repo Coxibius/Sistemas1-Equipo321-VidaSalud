@@ -14,6 +14,8 @@ public class VidaSaludDbContext : DbContext
     public DbSet<Lote> Lotes => Set<Lote>();
     public DbSet<MovimientoInventario> MovimientosInventario => Set<MovimientoInventario>();
     public DbSet<Usuario> Usuarios => Set<Usuario>();
+    public DbSet<LogAuditoria> LogsAuditoria => Set<LogAuditoria>();
+    public DbSet<SolicitudBaja> SolicitudesBaja => Set<SolicitudBaja>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -57,7 +59,8 @@ public class VidaSaludDbContext : DbContext
         // ==========================================
         modelBuilder.Entity<Producto>(entity =>
         {
-            entity.ToTable("producto");
+            entity.ToTable("producto", table =>
+                table.HasCheckConstraint("ck_producto_precio", "precio >= 0"));
             entity.HasKey(p => p.IdProducto);
 
             entity.Property(p => p.IdProducto)
@@ -98,7 +101,8 @@ public class VidaSaludDbContext : DbContext
         // ==========================================
         modelBuilder.Entity<Lote>(entity =>
         {
-            entity.ToTable("lote");
+            entity.ToTable("lote", table =>
+                table.HasCheckConstraint("ck_lote_cantidad", "cantidad >= 0"));
             entity.HasKey(l => l.IdLote);
 
             entity.Property(l => l.IdLote)
@@ -138,7 +142,16 @@ public class VidaSaludDbContext : DbContext
 
         modelBuilder.Entity<MovimientoInventario>(entity =>
         {
-            entity.ToTable("movimiento_inventario");
+            entity.ToTable("movimiento_inventario", table =>
+            {
+                table.HasCheckConstraint("ck_movimiento_cantidad", "cantidad > 0");
+                table.HasCheckConstraint(
+                    "ck_movimiento_tipo",
+                    "tipo_movimiento IN ('ENTRADA', 'SALIDA')");
+                table.HasCheckConstraint(
+                    "ck_movimiento_estado",
+                    "estado_movimiento IN ('REGISTRADO')");
+            });
             entity.HasKey(m => m.IdMovimiento);
 
             entity.Property(m => m.IdMovimiento)
@@ -224,6 +237,11 @@ public class VidaSaludDbContext : DbContext
                 .HasColumnType("timestamp with time zone")
                 .IsRequired();
 
+            entity.Property(usuario => usuario.Activo)
+                .HasColumnName("activo")
+                .HasDefaultValue(true)
+                .IsRequired();
+
             entity.HasIndex(usuario => usuario.NombreUsuario)
                 .IsUnique()
                 .HasDatabaseName("idx_usuario_nombre_usuario");
@@ -231,6 +249,111 @@ public class VidaSaludDbContext : DbContext
             entity.HasIndex(usuario => usuario.Email)
                 .IsUnique()
                 .HasDatabaseName("idx_usuario_email");
+        });
+
+        modelBuilder.Entity<LogAuditoria>(entity =>
+        {
+            entity.ToTable("log_auditoria", table =>
+                table.HasCheckConstraint(
+                    "ck_log_auditoria_resultado",
+                    "resultado IN ('EXITOSO', 'FALLIDO', 'RECHAZADO')"));
+            entity.HasKey(log => log.IdLog);
+
+            entity.Property(log => log.IdLog)
+                .HasColumnName("id_log")
+                .ValueGeneratedOnAdd();
+
+            entity.Property(log => log.Actor)
+                .HasColumnName("actor")
+                .HasMaxLength(80)
+                .IsRequired();
+
+            entity.Property(log => log.Accion)
+                .HasColumnName("accion")
+                .HasMaxLength(50)
+                .IsRequired();
+
+            entity.Property(log => log.Entidad)
+                .HasColumnName("entidad")
+                .HasMaxLength(50)
+                .IsRequired();
+
+            entity.Property(log => log.EntidadId)
+                .HasColumnName("entidad_id");
+
+            entity.Property(log => log.FechaUtc)
+                .HasColumnName("fecha_utc")
+                .HasColumnType("timestamp with time zone")
+                .IsRequired();
+
+            entity.Property(log => log.Resultado)
+                .HasColumnName("resultado")
+                .HasMaxLength(15)
+                .IsRequired();
+
+            entity.Property(log => log.Detalle)
+                .HasColumnName("detalle")
+                .HasMaxLength(250);
+
+            entity.HasIndex(log => log.FechaUtc)
+                .HasDatabaseName("idx_log_auditoria_fecha");
+        });
+
+        modelBuilder.Entity<SolicitudBaja>(entity =>
+        {
+            entity.ToTable("solicitud_baja", table =>
+                table.HasCheckConstraint(
+                    "ck_solicitud_baja_estado",
+                    "estado IN ('PENDIENTE', 'APROBADA', 'RECHAZADA')"));
+            entity.HasKey(solicitud => solicitud.IdSolicitud);
+
+            entity.Property(solicitud => solicitud.IdSolicitud)
+                .HasColumnName("id_solicitud")
+                .ValueGeneratedOnAdd();
+
+            entity.Property(solicitud => solicitud.IdUsuario)
+                .HasColumnName("id_usuario");
+
+            entity.Property(solicitud => solicitud.NombreUsuario)
+                .HasColumnName("nombre_usuario")
+                .HasMaxLength(50)
+                .IsRequired();
+
+            entity.Property(solicitud => solicitud.Motivo)
+                .HasColumnName("motivo")
+                .HasMaxLength(250);
+
+            entity.Property(solicitud => solicitud.Estado)
+                .HasColumnName("estado")
+                .HasMaxLength(15)
+                .IsRequired();
+
+            entity.Property(solicitud => solicitud.FechaSolicitud)
+                .HasColumnName("fecha_solicitud")
+                .HasColumnType("timestamp with time zone")
+                .IsRequired();
+
+            entity.Property(solicitud => solicitud.FechaResolucion)
+                .HasColumnName("fecha_resolucion")
+                .HasColumnType("timestamp with time zone");
+
+            entity.Property(solicitud => solicitud.ResueltaPor)
+                .HasColumnName("resuelta_por")
+                .HasMaxLength(80);
+
+            entity.HasIndex(solicitud => solicitud.Estado)
+                .HasDatabaseName("idx_solicitud_baja_estado");
+
+            entity.HasIndex(solicitud => solicitud.IdUsuario)
+                .IsUnique()
+                .HasFilter("estado = 'PENDIENTE'")
+                .HasDatabaseName("idx_solicitud_baja_usuario_pendiente");
+
+            entity.HasOne(solicitud => solicitud.Usuario)
+                .WithMany()
+                .HasForeignKey(solicitud => solicitud.IdUsuario)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("fk_solicitud_baja_usuario");
         });
     }
 }

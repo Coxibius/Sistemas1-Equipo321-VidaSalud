@@ -7,6 +7,7 @@ interface SidebarProps {
     alSeleccionar: (pantalla: string) => void;
     usuario: UsuarioSesion;
     alCerrarSesion: () => void;
+    alVerPerfil: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -14,6 +15,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     alSeleccionar,
     usuario,
     alCerrarSesion,
+    alVerPerfil,
 }) => {
     const menuItems = [
         { id: 'dashboard', label: '📊 Dashboard' },
@@ -52,7 +54,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </View>
 
             <View>
-                <View style={styles.userCard}>
+                <TouchableOpacity style={styles.userCard} onPress={alVerPerfil}>
                     <View style={styles.avatar}>
                         <Text style={styles.avatarText}>{usuario.nombre.charAt(0).toUpperCase()}</Text>
                     </View>
@@ -60,7 +62,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         <Text style={styles.userName} numberOfLines={1}>{usuario.nombre}</Text>
                         <Text style={styles.userRole}>{obtenerEtiquetaRol(usuario.rol)}</Text>
                     </View>
-                </View>
+                </TouchableOpacity>
                 <TouchableOpacity style={styles.logoutButton} onPress={alCerrarSesion}>
                     <Text style={styles.logoutText}>🚪 Cerrar sesión</Text>
                 </TouchableOpacity>

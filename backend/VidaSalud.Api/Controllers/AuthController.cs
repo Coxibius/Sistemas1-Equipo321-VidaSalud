@@ -33,6 +33,10 @@ public class AuthController : ControllerBase
         {
             return Unauthorized(new { code = ex.Code, message = ex.Message });
         }
+        catch (AccountInactiveException ex)
+        {
+            return StatusCode(StatusCodes.Status403Forbidden, new { code = ex.Code, message = ex.Message });
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error no controlado durante el inicio de sesión.");

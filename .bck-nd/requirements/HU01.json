@@ -5,7 +5,7 @@
     "role": "encargado de farmacia",
     "want": "registrar un producto con su información básica y lote inicial",
     "benefit": "mantener el inventario organizado y actualizado",
-    "status": "TODO"
+    "status": "DONE"
   },
   "business_rules": [
     { "id": "BR01", "description": "El nombre, precio y cantidad son campos obligatorios." },

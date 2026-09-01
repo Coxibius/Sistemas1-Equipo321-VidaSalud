@@ -15,11 +15,16 @@ public class UsuarioService : IUsuarioService
 
     private readonly VidaSaludDbContext _context;
     private readonly IPasswordHasher<Usuario> _passwordHasher;
+    private readonly IAuditoriaService _auditoria;
 
-    public UsuarioService(VidaSaludDbContext context, IPasswordHasher<Usuario> passwordHasher)
+    public UsuarioService(
+        VidaSaludDbContext context,
+        IPasswordHasher<Usuario> passwordHasher,
+        IAuditoriaService auditoria)
     {
         _context = context;
         _passwordHasher = passwordHasher;
+        _auditoria = auditoria;
     }
 
     public async Task<IReadOnlyList<UsuarioResponseDto>> ListarAsync(
@@ -35,13 +40,27 @@ public class UsuarioService : IUsuarioService
                 Usuario = usuario.NombreUsuario,
                 Email = usuario.Email,
                 Rol = usuario.Rol,
-                FechaRegistro = usuario.FechaRegistro
+                FechaRegistro = usuario.FechaRegistro,
+                Activo = usuario.Activo
             })
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<UsuarioResponseDto> ObtenerAsync(
+        int id,
+        CancellationToken cancellationToken = default)
+    {
+        var usuario = await _context.Usuarios
+            .AsNoTracking()
+            .FirstOrDefaultAsync(item => item.IdUsuario == id, cancellationToken)
+            ?? throw new UserNotFoundException();
+
+        return Mapear(usuario);
+    }
+
     public async Task<UsuarioResponseDto> CrearAsync(
         CrearUsuarioDto dto,
+        string? actor,
         CancellationToken cancellationToken = default)
     {
         var datos = ValidarDatos(dto.Nombre, dto.Usuario, dto.Email, dto.Rol);
@@ -66,12 +85,20 @@ public class UsuarioService : IUsuarioService
 
         _context.Usuarios.Add(usuario);
         await _context.SaveChangesAsync(cancellationToken);
+        await _auditoria.RegistrarAsync(
+            actor,
+            "CREAR_USUARIO",
+            "USUARIO",
+            usuario.IdUsuario,
+            detalle: $"Cuenta {usuario.NombreUsuario} creada con rol {usuario.Rol}.",
+            cancellationToken: cancellationToken);
         return Mapear(usuario);
     }
 
     public async Task<UsuarioResponseDto> ActualizarAsync(
         int id,
         ActualizarUsuarioDto dto,
+        string? actor,
         CancellationToken cancellationToken = default)
     {
         var usuario = await _context.Usuarios
@@ -103,10 +130,48 @@ public class UsuarioService : IUsuarioService
         }
 
         await _context.SaveChangesAsync(cancellationToken);
+        await _auditoria.RegistrarAsync(
+            actor,
+            "EDITAR_USUARIO",
+            "USUARIO",
+            usuario.IdUsuario,
+            detalle: $"Cuenta {usuario.NombreUsuario} actualizada.",
+            cancellationToken: cancellationToken);
         return Mapear(usuario);
     }
 
-    public async Task EliminarAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<UsuarioResponseDto> ActualizarPerfilAsync(
+        int id,
+        ActualizarPerfilDto dto,
+        string? actor,
+        CancellationToken cancellationToken = default)
+    {
+        var usuario = await _context.Usuarios
+            .FirstOrDefaultAsync(item => item.IdUsuario == id, cancellationToken)
+            ?? throw new UserNotFoundException();
+
+        var datos = ValidarDatos(dto.Nombre, usuario.NombreUsuario, dto.Email, usuario.Rol);
+        await ValidarUnicidadAsync(usuario.NombreUsuario, datos.Email, id, cancellationToken);
+
+        usuario.Nombre = datos.Nombre;
+        usuario.Email = datos.Email;
+
+        await _context.SaveChangesAsync(cancellationToken);
+        await _auditoria.RegistrarAsync(
+            actor ?? usuario.NombreUsuario,
+            "ACTUALIZAR_PERFIL",
+            "USUARIO",
+            usuario.IdUsuario,
+            detalle: "Nombre y correo personal actualizados.",
+            cancellationToken: cancellationToken);
+
+        return Mapear(usuario);
+    }
+
+    public async Task EliminarAsync(
+        int id,
+        string? actor,
+        CancellationToken cancellationToken = default)
     {
         var usuario = await _context.Usuarios
             .FirstOrDefaultAsync(item => item.IdUsuario == id, cancellationToken)
@@ -117,8 +182,16 @@ public class UsuarioService : IUsuarioService
             throw new AdminProtectedException("No se puede eliminar al único administrador.");
         }
 
+        var nombreUsuario = usuario.NombreUsuario;
         _context.Usuarios.Remove(usuario);
         await _context.SaveChangesAsync(cancellationToken);
+        await _auditoria.RegistrarAsync(
+            actor,
+            "ELIMINAR_USUARIO",
+            "USUARIO",
+            id,
+            detalle: $"Cuenta {nombreUsuario} eliminada por administración.",
+            cancellationToken: cancellationToken);
     }
 
     public async Task<UsuarioResponseDto> IniciarSesionAsync(
@@ -132,7 +205,27 @@ public class UsuarioService : IUsuarioService
 
         if (usuario is null)
         {
+            await _auditoria.RegistrarAsync(
+                nombreUsuario,
+                "INICIAR_SESION",
+                "USUARIO",
+                resultado: "FALLIDO",
+                detalle: "Credenciales inválidas.",
+                cancellationToken: cancellationToken);
             throw new InvalidCredentialsException();
+        }
+
+        if (!usuario.Activo)
+        {
+            await _auditoria.RegistrarAsync(
+                nombreUsuario,
+                "INICIAR_SESION",
+                "USUARIO",
+                usuario.IdUsuario,
+                "RECHAZADO",
+                "Cuenta inactiva.",
+                cancellationToken);
+            throw new AccountInactiveException();
         }
 
         var resultado = _passwordHasher.VerifyHashedPassword(
@@ -142,6 +235,14 @@ public class UsuarioService : IUsuarioService
 
         if (resultado == PasswordVerificationResult.Failed)
         {
+            await _auditoria.RegistrarAsync(
+                nombreUsuario,
+                "INICIAR_SESION",
+                "USUARIO",
+                usuario.IdUsuario,
+                "FALLIDO",
+                "Credenciales inválidas.",
+                cancellationToken);
             throw new InvalidCredentialsException();
         }
 
@@ -150,6 +251,13 @@ public class UsuarioService : IUsuarioService
             usuario.PasswordHash = _passwordHasher.HashPassword(usuario, contrasena);
             await _context.SaveChangesAsync(cancellationToken);
         }
+
+        await _auditoria.RegistrarAsync(
+            usuario.NombreUsuario,
+            "INICIAR_SESION",
+            "USUARIO",
+            usuario.IdUsuario,
+            cancellationToken: cancellationToken);
 
         return Mapear(usuario);
     }
@@ -243,6 +351,7 @@ public class UsuarioService : IUsuarioService
         Usuario = usuario.NombreUsuario,
         Email = usuario.Email,
         Rol = usuario.Rol,
-        FechaRegistro = usuario.FechaRegistro
+        FechaRegistro = usuario.FechaRegistro,
+        Activo = usuario.Activo
     };
 }

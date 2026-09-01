@@ -9,12 +9,13 @@ Content-Type: application/json
   "categoria": "Antibióticos",
   "precio": 12.50,
   "cantidad": 100,
-  "fechaVencimiento": "2027-08-30"
+  "fechaVencimiento": "2027-08-30",
+  "responsable": "María López"
 }
 
 ###
 
-### 11. Login sin JWT (HU06)
+### 11. Login sin JWT (HU05)
 POST {{baseUrl}}/api/auth/login
 Content-Type: application/json
 
@@ -34,6 +35,7 @@ Accept: application/json
 ### 13. Registrar usuario (HU06)
 POST {{baseUrl}}/api/usuarios
 Content-Type: application/json
+X-Actor: admin
 
 {
   "nombre": "Nuevo Auxiliar",
@@ -42,6 +44,47 @@ Content-Type: application/json
   "rol": "AUXILIAR",
   "contrasena": "cambiar123"
 }
+
+###
+
+### 14. Consultar Mi perfil (HU07)
+GET {{baseUrl}}/api/usuarios/2
+Accept: application/json
+
+###
+
+### 15. Corregir datos personales (HU07)
+PUT {{baseUrl}}/api/usuarios/2/perfil
+Content-Type: application/json
+X-Actor: victor
+
+{
+  "nombre": "Víctor",
+  "email": "victor.mamani@vidasalud.demo"
+}
+
+###
+
+### 16. Solicitar baja (HU07)
+POST {{baseUrl}}/api/solicitudes-baja
+Content-Type: application/json
+
+{
+  "usuarioId": 2,
+  "motivo": "Cuenta de demostración para probar el flujo"
+}
+
+###
+
+### 17. Listar solicitudes de baja (administrador)
+GET {{baseUrl}}/api/solicitudes-baja
+Accept: application/json
+
+###
+
+### 18. Consultar auditoría reciente
+GET {{baseUrl}}/api/auditoria?limite=20
+Accept: application/json
 
 ###
 

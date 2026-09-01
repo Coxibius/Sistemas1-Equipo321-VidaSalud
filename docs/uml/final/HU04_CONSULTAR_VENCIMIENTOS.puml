@@ -1,0 +1,16 @@
+@startuml HU04_Consultar_Vencimientos
+actor Encargado
+participant VencimientosScreen
+participant VencimientosController
+participant VencimientoService
+participant VidaSaludDbContext
+
+Encargado -> VencimientosScreen: abre Vencimientos
+VencimientosScreen -> VencimientosController: GET /api/vencimientos/alertas
+VencimientosController -> VencimientoService: ObtenerAlertasAsync()
+VencimientoService -> VidaSaludDbContext: consulta lotes con producto
+VencimientoService -> VencimientoService: calcula días y estado
+VencimientoService --> VencimientosController: alertas ordenadas
+VencimientosController --> VencimientosScreen: 200 OK
+VencimientosScreen --> Encargado: vencidos y próximos
+@enduml

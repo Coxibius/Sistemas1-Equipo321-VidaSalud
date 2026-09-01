@@ -1,0 +1,32 @@
+@startuml HU07_Datos_Personales
+actor Usuario
+actor Administrador
+participant MiPerfilScreen
+participant UsuariosController
+participant SolicitudesBajaController
+participant UsuarioService
+participant SolicitudBajaService
+participant AuditoriaService
+database PostgreSQL
+
+Usuario -> MiPerfilScreen: abre Mi perfil
+MiPerfilScreen --> Usuario: muestra datos de la sesión
+Usuario -> MiPerfilScreen: corrige nombre/correo
+MiPerfilScreen -> UsuariosController: PUT /api/usuarios/{id}/perfil
+UsuariosController -> UsuarioService: ActualizarPerfilAsync()
+UsuarioService -> PostgreSQL: UPDATE usuario
+UsuarioService -> AuditoriaService: ACTUALIZAR_PERFIL
+AuditoriaService -> PostgreSQL: INSERT log_auditoria
+UsuarioService --> MiPerfilScreen: datos actualizados
+
+Usuario -> MiPerfilScreen: solicita baja
+MiPerfilScreen -> SolicitudesBajaController: POST /api/solicitudes-baja
+SolicitudesBajaController -> SolicitudBajaService: SolicitarAsync()
+SolicitudBajaService -> PostgreSQL: INSERT solicitud PENDIENTE
+SolicitudBajaService -> AuditoriaService: SOLICITAR_BAJA
+
+Administrador -> SolicitudesBajaController: PUT /{id}/resolver APROBADA
+SolicitudesBajaController -> SolicitudBajaService: ResolverAsync()
+SolicitudBajaService -> PostgreSQL: UPDATE solicitud + usuario.activo=false
+SolicitudBajaService -> AuditoriaService: APROBAR_BAJA
+@enduml

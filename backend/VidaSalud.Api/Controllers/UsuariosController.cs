@@ -18,6 +18,25 @@ public class UsuariosController : ControllerBase
         _logger = logger;
     }
 
+    [HttpGet("{id:int}")]
+    [ProducesResponseType(typeof(UsuarioResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Obtener(int id, CancellationToken cancellationToken)
+    {
+        try
+        {
+            return Ok(await _usuarioService.ObtenerAsync(id, cancellationToken));
+        }
+        catch (UserNotFoundException ex)
+        {
+            return NotFound(new { code = ex.Code, message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            return ErrorInterno(ex, "consultar el perfil");
+        }
+    }
+
     [HttpGet]
     [ProducesResponseType(typeof(IReadOnlyList<UsuarioResponseDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> Listar(CancellationToken cancellationToken)
@@ -36,11 +55,12 @@ public class UsuariosController : ControllerBase
     [ProducesResponseType(typeof(UsuarioResponseDto), StatusCodes.Status201Created)]
     public async Task<IActionResult> Crear(
         [FromBody] CrearUsuarioDto dto,
+        [FromHeader(Name = "X-Actor")] string? actor,
         CancellationToken cancellationToken)
     {
         try
         {
-            var usuario = await _usuarioService.CrearAsync(dto, cancellationToken);
+            var usuario = await _usuarioService.CrearAsync(dto, actor, cancellationToken);
             return StatusCode(StatusCodes.Status201Created, usuario);
         }
         catch (DuplicateUsernameException ex)
@@ -70,11 +90,12 @@ public class UsuariosController : ControllerBase
     public async Task<IActionResult> Actualizar(
         int id,
         [FromBody] ActualizarUsuarioDto dto,
+        [FromHeader(Name = "X-Actor")] string? actor,
         CancellationToken cancellationToken)
     {
         try
         {
-            return Ok(await _usuarioService.ActualizarAsync(id, dto, cancellationToken));
+            return Ok(await _usuarioService.ActualizarAsync(id, dto, actor, cancellationToken));
         }
         catch (UserNotFoundException ex)
         {
@@ -102,13 +123,42 @@ public class UsuariosController : ControllerBase
         }
     }
 
-    [HttpDelete("{id:int}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> Eliminar(int id, CancellationToken cancellationToken)
+    [HttpPut("{id:int}/perfil")]
+    [ProducesResponseType(typeof(UsuarioResponseDto), StatusCodes.Status200OK)]
+    public async Task<IActionResult> ActualizarPerfil(
+        int id,
+        [FromBody] ActualizarPerfilDto dto,
+        [FromHeader(Name = "X-Actor")] string? actor,
+        CancellationToken cancellationToken)
     {
         try
         {
-            await _usuarioService.EliminarAsync(id, cancellationToken);
+            return Ok(await _usuarioService.ActualizarPerfilAsync(id, dto, actor, cancellationToken));
+        }
+        catch (UserNotFoundException ex)
+        {
+            return NotFound(new { code = ex.Code, message = ex.Message });
+        }
+        catch (BusinessValidationException ex)
+        {
+            return BadRequest(new { code = ex.Code, message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            return ErrorInterno(ex, "actualizar el perfil");
+        }
+    }
+
+    [HttpDelete("{id:int}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> Eliminar(
+        int id,
+        [FromHeader(Name = "X-Actor")] string? actor,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            await _usuarioService.EliminarAsync(id, actor, cancellationToken);
             return NoContent();
         }
         catch (UserNotFoundException ex)

@@ -24,6 +24,9 @@ public class RegistrarProductoDto
     [Required(ErrorMessage = "La fecha de vencimiento es obligatoria.")]
     public DateOnly FechaVencimiento { get; set; }
 
+    [StringLength(80, ErrorMessage = "El responsable no puede exceder 80 caracteres.")]
+    public string? Responsable { get; set; }
+
     [JsonPropertyName("fecha_vencimiento")]
     public DateOnly? FechaVencimientoSnakeCase
     {

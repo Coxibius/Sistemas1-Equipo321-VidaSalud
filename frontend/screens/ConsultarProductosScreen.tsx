@@ -7,6 +7,7 @@ import {
     TextInput,
     TouchableOpacity,
     View,
+    useWindowDimensions,
 } from 'react-native';
 import { ProductoService } from '../services/productoService';
 import { ProductoResponse } from '../types/producto';
@@ -22,6 +23,8 @@ export const ConsultarProductosScreen: React.FC<Props> = ({ alRegistrarProducto,
     const [productos, setProductos] = useState<ProductoResponse[]>([]);
     const [cargando, setCargando] = useState(true);
     const [mensajeError, setMensajeError] = useState<string | null>(null);
+    const { width } = useWindowDimensions();
+    const esMovil = width < 700;
 
     const consultarProductos = useCallback(async (texto?: string) => {
         try {
@@ -51,7 +54,11 @@ export const ConsultarProductosScreen: React.FC<Props> = ({ alRegistrarProducto,
     };
 
     return (
-        <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+        <ScrollView
+            contentContainerStyle={[styles.container, esMovil && styles.containerMobile]}
+            keyboardShouldPersistTaps="handled"
+            keyboardDismissMode="on-drag"
+        >
             <View style={styles.topHeader}>
                 <View>
                     <Text style={styles.eyebrow}>INVENTARIO FARMACÉUTICO</Text>
@@ -166,11 +173,15 @@ const styles = StyleSheet.create({
         backgroundColor: '#F8FAFC',
         padding: 32,
     },
+    containerMobile: {
+        padding: 16,
+    },
     topHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'flex-start',
         gap: 20,
+        flexWrap: 'wrap',
         marginBottom: 24,
     },
     eyebrow: {

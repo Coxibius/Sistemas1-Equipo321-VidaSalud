@@ -10,11 +10,16 @@ public class MovimientoService : IMovimientoService
 {
     private readonly VidaSaludDbContext _context;
     private readonly ILogger<MovimientoService> _logger;
+    private readonly IAuditoriaService _auditoria;
 
-    public MovimientoService(VidaSaludDbContext context, ILogger<MovimientoService> logger)
+    public MovimientoService(
+        VidaSaludDbContext context,
+        ILogger<MovimientoService> logger,
+        IAuditoriaService auditoria)
     {
         _context = context;
         _logger = logger;
+        _auditoria = auditoria;
     }
 
     public async Task<MovimientoResponseDto> RegistrarMovimientoAsync(
@@ -124,6 +129,14 @@ public class MovimientoService : IMovimientoService
             movimiento.IdMovimiento,
             producto.IdProducto,
             responsable);
+
+        await _auditoria.RegistrarAsync(
+            responsable,
+            tipo == "ENTRADA" ? "REGISTRAR_ENTRADA" : "REGISTRAR_SALIDA",
+            "MOVIMIENTO_INVENTARIO",
+            movimiento.IdMovimiento,
+            detalle: $"{dto.Cantidad} unidades de {producto.Nombre}.",
+            cancellationToken: cancellationToken);
 
         return new MovimientoResponseDto
         {

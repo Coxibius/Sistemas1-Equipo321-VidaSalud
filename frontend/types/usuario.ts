@@ -7,6 +7,7 @@ export interface UsuarioSesion {
     email?: string;
     rol: RolUsuario;
     fechaRegistro: string;
+    activo: boolean;
 }
 
 export interface CrearUsuario {
@@ -23,6 +24,11 @@ export interface ActualizarUsuario {
     email?: string;
     rol: RolUsuario;
     contrasena?: string;
+}
+
+export interface ActualizarPerfil {
+    nombre: string;
+    email?: string;
 }
 
 export const obtenerEtiquetaRol = (rol: RolUsuario): string => ({

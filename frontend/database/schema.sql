@@ -1,3 +1,6 @@
+-- DOCUMENTO HISTÓRICO DE DISEÑO (Actividad 7).
+-- No representa el esquema final de Entity Framework.
+-- Consultar ../../docs/database/ESQUEMA_IMPLEMENTADO.sql y las migraciones del backend.
 -- =====================================================================
 -- Sistema de Gestión de Inventario - Farmacia VidaSalud
 -- Actividad 7: Diseño de la Arquitectura de Datos y Normalización (3FN)

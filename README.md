@@ -12,6 +12,8 @@ VidaSalud permite registrar y consultar productos, controlar entradas y salidas,
 - HU04: alertas de lotes vencidos o próximos a vencer.
 - HU05: pantalla de inicio y cierre de sesión.
 - HU06: CRUD de usuarios almacenados en PostgreSQL.
+- HU07: consulta y corrección de datos personales y solicitud de baja.
+- Auditoría persistente de inicios de sesión, productos, movimientos, usuarios y bajas.
 
 ## Tecnologías
 
@@ -31,23 +33,31 @@ VidaSalud permite registrar y consultar productos, controlar entradas y salidas,
 
 ## Roles
 
-- `ADMINISTRADOR`: puede acceder al módulo de gestión de usuarios.
+- `ADMINISTRADOR`: gestiona usuarios, solicitudes de baja y registros de auditoría.
 - `ENCARGADO`: puede operar productos, inventario y vencimientos.
 - `AUXILIAR`: puede operar los módulos generales del inventario.
 
 La sesión del proyecto es académica y no utiliza JWT. El frontend conserva al usuario únicamente mientras la aplicación permanece abierta. La restricción del módulo administrativo es visual; la API todavía no implementa autorización criptográfica por rol.
 
-## Cuentas iniciales
+## Cuentas de demostración
 
-La migración de usuarios crea estas cuentas de demostración:
+La migración crea las tres cuentas originales y el seeder idempotente completa ocho perfiles
+ficticios. Las contraseñas se almacenan mediante hash y nunca se devuelven por la API:
 
-| Rol | Usuario | Contraseña |
-| --- | --- | --- |
-| Administrador | `admin` | `admin123` |
-| Auxiliar | `victor` | `victor123` |
-| Encargado | `maria` | `maria123` |
+| Nombre | Rol | Usuario | Contraseña inicial |
+| --- | --- | --- | --- |
+| Ana Patricia Rojas | Administrador | `admin` | `admin123` |
+| Víctor Hugo Mamani | Auxiliar | `victor` | `victor123` |
+| María López Vargas | Encargado | `maria` | `maria123` |
+| José Roberto Márquez | Encargado | `jose` | `jose123` si la cuenta no existía |
+| Camila Rojas Pérez | Auxiliar | `camila` | `camila123` |
+| Diego Flores Choque | Encargado | `diego` | `diego123` |
+| Lucía Mendoza Quispe | Auxiliar | `lucia` | `lucia123` |
+| Carlos Condori Vargas | Encargado | `carlos` | `carlos123` |
 
 Estas credenciales son exclusivamente para la presentación académica.
+Si una cuenta ya existía, el seeder conserva su contraseña, estado y cambios personales. Solo
+completa nombres o correos que aún conservan los valores iniciales conocidos.
 
 ## Requisitos previos
 
@@ -119,7 +129,14 @@ La API quedará disponible en:
 http://localhost:5237/api
 ```
 
-La migración crea las tablas, categorías iniciales y las tres cuentas de demostración.
+La migración crea las tablas, categorías iniciales y las tres cuentas originales. Al iniciar la API,
+el seeder completa los ocho usuarios y agrega ocho productos con lotes de ejemplo para alimentar
+el dashboard y las alertas de vencimiento. Es idempotente: no duplica usuarios ni productos y no
+sobrescribe contraseñas existentes. Puede desactivarse con `"SeedDemoData": false` en la
+configuración local.
+
+La migración `AddAuditoriaYSolicitudesBaja` agrega el estado de cuenta, logs persistentes y el
+flujo de solicitudes de baja. Debe aplicarse antes de probar HU07.
 
 ## Ejecutar el frontend web
 
@@ -137,37 +154,49 @@ En la versión web, Axios utiliza automáticamente `http://localhost:5237/api`.
 
 Para utilizar un teléfono en la misma red:
 
-1. Consultar la dirección IPv4 de la computadora con `ipconfig`.
-2. Actualizar la dirección móvil en `frontend/services/api.ts`.
-3. Iniciar la API escuchando conexiones de la red local:
+1. Conectar la computadora y el teléfono a la misma red Wi-Fi.
+2. Iniciar la API. El perfil HTTP ya escucha conexiones de la red local:
 
 ```powershell
 cd backend\VidaSalud.Api
-dotnet run --urls http://0.0.0.0:5237
+dotnet run --launch-profile http
 ```
 
-4. Iniciar Expo:
+3. En otra terminal, iniciar Expo en modo LAN y limpiar la caché:
 
 ```powershell
 cd frontend
-npm start
+npm start -- --lan --clear
 ```
 
-Puede ser necesario permitir el puerto `5237` en el firewall de Windows.
+4. Escanear el nuevo QR desde Expo Go. La aplicación obtiene automáticamente la IP del
+servidor de Expo y construye la dirección de la API; no se modifica `frontend/services/api.ts`.
+
+Si el teléfono todavía no conecta, consultar la IPv4 de la computadora con `ipconfig` y abrir
+`http://TU_IPV4:5237/api/health` en el navegador del teléfono. Si esa dirección no responde,
+permitir .NET y el puerto `5237` para redes privadas en el firewall de Windows. Una VPN o una
+red Wi-Fi con aislamiento entre dispositivos también puede impedir la conexión.
 
 ## Endpoints principales
 
 | Método | Ruta | Función |
 | --- | --- | --- |
+| `GET` | `/api/health` | Comprobar que el teléfono puede alcanzar la API |
 | `POST` | `/api/auth/login` | Validar credenciales sin generar token |
 | `GET` | `/api/productos` | Listar o buscar productos |
 | `POST` | `/api/productos` | Registrar producto y lote inicial |
 | `POST` | `/api/movimientos` | Registrar entrada o salida |
 | `GET` | `/api/vencimientos/alertas` | Consultar alertas de vencimiento |
 | `GET` | `/api/usuarios` | Listar usuarios sin contraseñas |
+| `GET` | `/api/usuarios/{id}` | Consultar los datos del perfil |
 | `POST` | `/api/usuarios` | Registrar usuario |
 | `PUT` | `/api/usuarios/{id}` | Editar usuario o cambiar contraseña |
+| `PUT` | `/api/usuarios/{id}/perfil` | Corregir nombre y correo propios |
 | `DELETE` | `/api/usuarios/{id}` | Eliminar usuario no administrador |
+| `GET` | `/api/auditoria` | Consultar eventos críticos recientes |
+| `GET` | `/api/solicitudes-baja` | Listar solicitudes de baja |
+| `POST` | `/api/solicitudes-baja` | Registrar una solicitud de baja |
+| `PUT` | `/api/solicitudes-baja/{id}/resolver` | Aprobar o rechazar una solicitud |
 
 Hay ejemplos adicionales en `backend/VidaSalud.Api/VidaSalud.Api.http`.
 
@@ -187,15 +216,47 @@ cd frontend
 npx tsc --noEmit
 ```
 
+Prueba integral HU01–HU07, con la API y PostgreSQL activos:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\smoke-test.ps1
+```
+
+Control previo al Demo Day:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\pre-demo-check.ps1
+```
+
+La evidencia de la ejecución del 1 de septiembre de 2026 está en
+[`docs/testing/SMOKE_TEST_2026-09-01.md`](docs/testing/SMOKE_TEST_2026-09-01.md). La comprobación
+de red y el checklist para el teléfono están en
+[`docs/testing/PRUEBA_MOVIL_2026-09-01.md`](docs/testing/PRUEBA_MOVIL_2026-09-01.md).
+
 ## Estructura principal
 
 ```text
 Sistemas1-Equipo321-VidaSalud/
-├── .bck-nd/requirements/       Historias HU01-HU06
+├── .bck-nd/requirements/       Historias HU01-HU07
 ├── backend/VidaSalud.Api/      API ASP.NET Core y migraciones
 ├── frontend/                   Aplicación Expo/React Native
 └── docs/                       Diagramas y documentación académica
 ```
+
+El alcance, ODS, reglas y trazabilidad final están definidos en `PRD.md`.
+
+Documentos recomendados para la defensa (índice completo en [`docs/README.md`](docs/README.md)):
+
+- [`docs/analysis/ARBOL_PROBLEMAS.png`](docs/analysis/ARBOL_PROBLEMAS.png): causas, problema central y efectos.
+- [`docs/TRAZABILIDAD.md`](docs/TRAZABILIDAD.md): relación causa → HU → pantalla → regla → tabla.
+- [`docs/uml/final/`](docs/uml/final/README.md): fuentes e imágenes UML del código implementado.
+- [`docs/database/DICCIONARIO_DATOS.md`](docs/database/DICCIONARIO_DATOS.md): tablas, claves y normalización.
+- [`docs/usability/PRUEBA_USABILIDAD.md`](docs/usability/PRUEBA_USABILIDAD.md): protocolo y registro de resultados reales.
+- [`docs/DEMO_DAY.md`](docs/DEMO_DAY.md): pitch, recorrido y checklist del stand.
+- [`docs/testing/`](docs/testing/): resultados técnicos y validación móvil del MVP.
+- [`docs/CAPTURAS_DEMO_DAY.md`](docs/CAPTURAS_DEMO_DAY.md): capturas que deben anexarse.
+- [`docs/ENSAYO_DEMO_DAY.md`](docs/ENSAYO_DEMO_DAY.md): pitch, demo y respuestas técnicas.
+- [`docs/CIERRE_GITHUB.md`](docs/CIERRE_GITHUB.md): cierre de rama, PR y entrega Moodle.
 
 ## Flujo Git recomendado
 

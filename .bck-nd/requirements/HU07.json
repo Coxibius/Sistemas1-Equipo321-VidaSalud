@@ -1,0 +1,42 @@
+{
+  "story": {
+    "id": "HU07",
+    "title": "Consultar y gestionar mis datos personales",
+    "role": "usuario registrado",
+    "want": "consultar y corregir mis datos personales y solicitar la baja de mi cuenta",
+    "benefit": "mantener control sobre la información almacenada por VidaSalud",
+    "status": "DONE"
+  },
+  "business_rules": [
+    { "id": "BR01", "description": "El perfil nunca muestra contraseñas ni hashes." },
+    { "id": "BR02", "description": "El usuario puede corregir su nombre y correo; usuario y rol son administrados." },
+    { "id": "BR03", "description": "Solo puede existir una solicitud de baja pendiente por cuenta." },
+    { "id": "BR04", "description": "La única cuenta administradora no puede solicitar su baja." },
+    { "id": "BR05", "description": "Aprobar una baja desactiva la cuenta y conserva la trazabilidad." }
+  ],
+  "acceptance_criteria": [
+    { "id": "AC01", "given": "un usuario inició sesión", "when": "abre Mi perfil", "then": "visualiza nombre, usuario, correo, rol, fecha de registro y estado" },
+    { "id": "AC02", "given": "nombre y correo válidos", "when": "guarda correcciones", "then": "el sistema actualiza sus datos y registra la auditoría" },
+    { "id": "AC03", "given": "un encargado o auxiliar activo", "when": "solicita su baja", "then": "se registra una solicitud pendiente" },
+    { "id": "AC04", "given": "una solicitud pendiente", "when": "el administrador la aprueba", "then": "la cuenta queda inactiva y no puede iniciar sesión" },
+    { "id": "AC05", "given": "una solicitud pendiente", "when": "el administrador la rechaza", "then": "la cuenta permanece activa" },
+    { "id": "AC06", "given": "operaciones críticas", "when": "el administrador consulta la gestión de usuarios", "then": "visualiza logs persistentes con actor, acción, fecha y resultado" }
+  ],
+  "required_data": [
+    { "field": "nombre", "type": "string" },
+    { "field": "email", "type": "string opcional" },
+    { "field": "motivo", "type": "string opcional, máximo 250" },
+    { "field": "estado", "type": "ENUM(PENDIENTE, APROBADA, RECHAZADA)" }
+  ],
+  "validations": [
+    { "field": "nombre", "rule": "obligatorio, máximo 80 caracteres" },
+    { "field": "email", "rule": "formato válido y único cuando exista" },
+    { "field": "motivo", "rule": "máximo 250 caracteres" }
+  ],
+  "exceptions": [
+    { "code": "PENDING_DEACTIVATION_REQUEST", "description": "Ya existe una solicitud pendiente." },
+    { "code": "ACCOUNT_INACTIVE", "description": "La cuenta está inactiva." },
+    { "code": "ADMIN_PROTECTED", "description": "El único administrador está protegido." }
+  ],
+  "open_questions": []
+}
